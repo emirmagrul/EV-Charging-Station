@@ -33,4 +33,8 @@ public class ChargingStation {
 
     @OneToMany(mappedBy = "station", cascade = CascadeType.ALL)
     private List<Charger> chargers;
+
+    @ManyToOne
+    @JoinColumn(name = "operator_id")
+    private StationOperator responsibleOperator;
 }

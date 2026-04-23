@@ -8,7 +8,9 @@ import java.math.BigDecimal;
 public class ChargingStationDto {
     private Long id;
     private String stationName;
-    private String location;
+    private String address;
+    private Double latitude;
+    private Double longitude;
     private String operatingHours;
     private BigDecimal pricingPerKWh;
 }

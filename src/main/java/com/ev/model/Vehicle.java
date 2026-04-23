@@ -30,7 +30,7 @@ public class Vehicle {
 
     @ManyToOne
     @JoinColumn(name = "connector_type_id")
-    private ConnecterType connectorType;
+    private ConnectorType connectorType;
 
     @ManyToOne
     @JoinColumn(name = "driver_id")

@@ -1,5 +1,6 @@
 package com.ev.model;
 
+import com.ev.model.enums.ChargerStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -19,8 +20,9 @@ public class Charger {
     @Column(name = "power_output")
     private double powerOutput;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status")
-    private String status;
+    private ChargerStatus status;
 
     @ManyToOne
     @JoinColumn(name = "station_id")
@@ -28,5 +30,5 @@ public class Charger {
 
     @ManyToOne
     @JoinColumn(name = "connector_type_id")
-    private ConnecterType connectorType; // [cite: 250]
+    private ConnectorType connectorType; // [cite: 250]
 }

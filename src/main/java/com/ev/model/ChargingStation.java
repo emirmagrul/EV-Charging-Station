@@ -22,8 +22,17 @@ public class ChargingStation {
     @Column(name = "station_name")
     private String stationName;
 
-    @Column(name = "location")
-    private String location;
+    // Kullanıcıya harita üzerinde gösterilecek açık adres
+    @Column(name = "address")
+    private String address;
+
+    //Koordinat
+    @Column(name = "latitude")
+    private Double latitude;
+
+    //Koordinat
+    @Column(name = "longitude")
+    private Double longitude;
 
     @Column(name = "operating_hours")
     private String operatingHours;

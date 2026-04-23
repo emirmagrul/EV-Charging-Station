@@ -25,7 +25,9 @@ public class ChargingStationServiceImpl implements IChargingStationService {
     public ChargingStationDto save(ChargingStationDto stationDto, Long operatorId) {
         ChargingStation station = new ChargingStation();
         station.setStationName(stationDto.getStationName());
-        station.setLocation(stationDto.getLocation());
+        station.setAddress(stationDto.getAddress());
+        station.setLatitude(stationDto.getLatitude());
+        station.setLongitude(stationDto.getLongitude());
         station.setOperatingHours(stationDto.getOperatingHours());
         station.setPricingPerKWh(stationDto.getPricingPerKWh());
 
@@ -42,13 +44,7 @@ public class ChargingStationServiceImpl implements IChargingStationService {
     @Override
     public List<ChargingStationDto> findAll() {
         return stationRepository.findAll().stream().map(s -> {
-            ChargingStationDto dto = new ChargingStationDto();
-            dto.setId(s.getId());
-            dto.setStationName(s.getStationName());
-            dto.setLocation(s.getLocation());
-            dto.setOperatingHours(s.getOperatingHours());
-            dto.setPricingPerKWh(s.getPricingPerKWh());
-            return dto;
+            return getChargingStationDto(s);
         }).collect(Collectors.toList());
     }
 
@@ -56,10 +52,16 @@ public class ChargingStationServiceImpl implements IChargingStationService {
     public ChargingStationDto findById(Long id) {
         ChargingStation s = stationRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("İstasyon bulunamadı!"));
+        return getChargingStationDto(s);
+    }
+
+    private ChargingStationDto getChargingStationDto(ChargingStation s) {
         ChargingStationDto dto = new ChargingStationDto();
         dto.setId(s.getId());
         dto.setStationName(s.getStationName());
-        dto.setLocation(s.getLocation());
+        dto.setAddress(s.getAddress());
+        dto.setLatitude(s.getLatitude());
+        dto.setLongitude(s.getLongitude());
         dto.setOperatingHours(s.getOperatingHours());
         dto.setPricingPerKWh(s.getPricingPerKWh());
         return dto;

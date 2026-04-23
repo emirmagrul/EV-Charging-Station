@@ -1,5 +1,6 @@
 package com.ev.model;
 
+import com.ev.model.enums.SessionStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -31,8 +32,9 @@ public class ChargingSession {
     @Column(name = "total_cost")
     private BigDecimal totalCost;
 
-    @Column(name = "status") // ACTIVE, INACTIVE gibi durumlar için
-    private String status;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private SessionStatus status;
 
     @OneToOne
     @JoinColumn(name = "reservation_id")

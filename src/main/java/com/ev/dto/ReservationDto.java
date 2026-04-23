@@ -1,5 +1,6 @@
 package com.ev.dto;
 
+import com.ev.model.enums.ReservationStatus;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -11,7 +12,7 @@ public class ReservationDto {
     private LocalDate reservationDate;
     private LocalTime startTime;
     private LocalTime endTime;
-    private String status;
+    private ReservationStatus status;
     private Long driverId;
     private Long chargerId;
     private String stationName;

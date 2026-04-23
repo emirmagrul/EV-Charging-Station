@@ -1,10 +1,10 @@
 package com.ev.service.impl;
 
 import com.ev.dto.VehicleDto;
-import com.ev.model.ConnecterType;
+import com.ev.model.ConnectorType;
 import com.ev.model.EVDriver;
 import com.ev.model.Vehicle;
-import com.ev.repository.ConnecterTypeRepository;
+import com.ev.repository.ConnectorTypeRepository;
 import com.ev.repository.EVDriverRepository;
 import com.ev.repository.VehicleRepository;
 import com.ev.service.IVehicleService;
@@ -21,7 +21,7 @@ public class VehicleServiceImpl implements IVehicleService {
 
     private final VehicleRepository vehicleRepository;
     private final EVDriverRepository evDriverRepository;
-    private final ConnecterTypeRepository connecterTypeRepository;
+    private final ConnectorTypeRepository connectorTypeRepository;
 
 
     @Override
@@ -36,7 +36,7 @@ public class VehicleServiceImpl implements IVehicleService {
         EVDriver owner = evDriverRepository.findById(vehicleDto.getDriverId())
                 .orElseThrow(() -> new RuntimeException("Sahip Sürücü bulunamadı!"));
 
-        ConnecterType type = connecterTypeRepository.findById(vehicleDto.getConnectorType().getId())
+        ConnectorType type = connectorTypeRepository.findById(vehicleDto.getConnectorTypeId())
                 .orElseThrow(() -> new RuntimeException("Soket tipi bulunamadı!"));
 
         vehicle.setOwner(owner);

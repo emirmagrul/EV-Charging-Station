@@ -9,6 +9,7 @@ public class VehicleDto {
     private String model;
     private double batteryCapacity;
     private String plateNumber;
-    private ConnecterTypeDto connectorType;
+    private Long connectorTypeId;
+    private String connectorTypeName;
     private Long driverId;
 }

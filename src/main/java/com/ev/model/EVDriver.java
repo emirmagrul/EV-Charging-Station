@@ -33,4 +33,12 @@ public class EVDriver {
 
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
     private List<Vehicle> vehicles;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "driver_favorite_stations",
+            joinColumns = @JoinColumn(name = "driver_id"),
+            inverseJoinColumns = @JoinColumn(name = "station_id")
+    )
+    private List<ChargingStation> favoriteStations;
 }

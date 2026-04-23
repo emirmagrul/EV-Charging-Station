@@ -6,6 +6,7 @@ import java.util.List;
 
 public interface IReservationService {
     ReservationDto makeReservation(ReservationDto reservationDto);
+    void confirmReservation(Long reservationId);
     void cancelReservation(Long reservationId);
     List<ReservationDto> getMyReservations(Long driverId);
 }

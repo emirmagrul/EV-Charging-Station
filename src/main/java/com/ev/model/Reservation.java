@@ -1,11 +1,13 @@
 package com.ev.model;
 
+import com.ev.model.enums.ReservationStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Entity
@@ -28,8 +30,9 @@ public class Reservation {
     @Column(name = "end_time")
     private LocalTime endTime;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status")
-    private String status;
+    private ReservationStatus status;
 
     @ManyToOne
     @JoinColumn(name = "driver_id")
@@ -38,4 +41,12 @@ public class Reservation {
     @ManyToOne
     @JoinColumn(name = "charger_id")
     private Charger charger;
+
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+    }
 }

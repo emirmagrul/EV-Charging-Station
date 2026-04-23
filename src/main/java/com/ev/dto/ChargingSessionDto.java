@@ -1,5 +1,6 @@
 package com.ev.dto;
 
+import com.ev.model.enums.SessionStatus;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -12,6 +13,6 @@ public class ChargingSessionDto {
     private LocalDateTime endTime;
     private double energyConsumedKwh;
     private BigDecimal totalCost;
-    private String status;
+    private SessionStatus status;
     private Long reservationId;
 }

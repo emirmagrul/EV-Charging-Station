@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ConnecterType {
+public class ConnectorType {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

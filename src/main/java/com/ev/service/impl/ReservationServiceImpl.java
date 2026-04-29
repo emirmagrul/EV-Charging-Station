@@ -110,12 +110,8 @@ public class ReservationServiceImpl implements IReservationService {
             throw new RuntimeException("Hata: Rezervasyon bekleyen (PENDING) durumunda değil!");
         }
 
-        long minutes = Duration.between(res.getStartTime(), res.getEndTime()).toMinutes();
-        double hours = minutes / 60.0;
-        BigDecimal unitPrice = res.getCharger().getStation().getPricingPerKWh();
-        double powerKw = res.getCharger().getPowerOutput();
-
-        BigDecimal estimatedCost = unitPrice.multiply(BigDecimal.valueOf(powerKw * hours));
+        // Merkezi metodumuzla tahmini maliyeti hesaplıyoruz
+        BigDecimal estimatedCost = calculateReservationCost(res);
 
         evDriverService.deductBalance(res.getDriver().getId(), estimatedCost);
 
@@ -140,15 +136,23 @@ public class ReservationServiceImpl implements IReservationService {
             throw new RuntimeException("Hata: Başlama saati geçmiş olan bir rezervasyon iptal edilemez!");
         }
 
-        BigDecimal unitPrice = res.getCharger().getStation().getPricingPerKWh();
-        double powerKw = res.getCharger().getPowerOutput();
-        long minutes = Duration.between(res.getStartTime(), res.getEndTime()).toMinutes();
-        BigDecimal prepaidAmount = unitPrice.multiply(BigDecimal.valueOf(powerKw * (minutes / 60.0)));
+        // İade edilecek tutarı aynı merkezi metodla hesaplıyoruz
+        BigDecimal prepaidAmount = calculateReservationCost(res);
 
         evDriverService.addBalance(res.getDriver().getId(), prepaidAmount);
 
         res.setStatus(ReservationStatus.CANCELLED);
         reservationRepository.save(res);
+    }
+
+    //Rezervasyon süresine ve cihaz gücüne göre tahmini maliyeti hesaplar.
+    private BigDecimal calculateReservationCost(Reservation res) {
+        long minutes = Duration.between(res.getStartTime(), res.getEndTime()).toMinutes();
+        double hours = minutes / 60.0;
+        BigDecimal unitPrice = res.getCharger().getStation().getPricingPerKWh();
+        double powerKw = res.getCharger().getPowerOutput();
+
+        return unitPrice.multiply(BigDecimal.valueOf(powerKw * hours));
     }
 
     @Override

@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "connecter_type")
+@Table(name = "connector_type")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

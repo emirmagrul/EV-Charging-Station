@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -32,6 +33,7 @@ public class EVDriver {
     private BigDecimal walletBalance;
 
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
+    @ToString.Exclude
     private List<Vehicle> vehicles;
 
     @ManyToMany(fetch = FetchType.LAZY)

@@ -58,7 +58,7 @@ public class MapServiceImpl implements IMapService {
                 .orElseThrow(() -> new RuntimeException("İstasyon bulunamadı!"));
 
         //Google Maps Directions API URL oluşturma
-        return String.format("https://www.google.com/maps/dir/?api=1&origin=%f,%f&destination=%f,%f&travelmode=driving",
+        return String.format(java.util.Locale.ROOT, "https://www.google.com/maps/dir/?api=1&origin=%f,%f&destination=%f,%f&travelmode=driving",
                 userLat, userLng, station.getLatitude(), station.getLongitude());
     }
 

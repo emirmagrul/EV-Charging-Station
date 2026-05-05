@@ -1,0 +1,96 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+@import "leaflet/dist/leaflet.css";
+@import "leaflet-routing-machine/dist/leaflet-routing-machine.css";
+
+:root {
+  /* Renk Paleti (Elektrikli Araç ve Enerji temasına uygun) */
+  --bg-main: #0f172a; /* Derin Gece Mavisi */
+  --bg-card: rgba(30, 41, 59, 0.6);
+  --bg-card-hover: rgba(30, 41, 59, 0.9);
+  
+  --primary: #10b981; /* EV Yeşili / Neon */
+  --primary-dark: #059669;
+  --primary-glow: rgba(16, 185, 129, 0.4);
+  
+  --secondary: #3b82f6; /* Elektrik Mavisi */
+  --accent: #8b5cf6; /* Vurgu Moru */
+  
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  
+  /* Durum Renkleri */
+  --danger: #ef4444;   /* Hata / Arızalı */
+  --warning: #f59e0b;  /* Bekliyor / Şarjda */
+  --success: #10b981;  /* Müsait */
+
+  /* Cam Efekti ve Gölgeler */
+  --border-light: rgba(255, 255, 255, 0.1);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+  --glass-border: 1px solid rgba(255, 255, 255, 0.05);
+
+  /* Animasyon Geçişleri */
+  --transition-fast: 0.2s ease;
+  --transition-normal: 0.3s ease;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Outfit', sans-serif;
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  min-height: 100vh;
+  line-height: 1.6;
+  /* Derinlik hissi veren ince bir radyal arkaplan */
+  background-image: radial-gradient(circle at 50% 0%, #1e293b 0%, #0f172a 100%);
+  background-attachment: fixed;
+}
+
+/* Tüm uygulamada kullanacağımız 'Cam' (Glassmorphism) stili */
+.glass-panel {
+  background: var(--bg-card);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: var(--glass-border);
+  border-radius: 16px;
+  box-shadow: var(--glass-shadow);
+  transition: all var(--transition-normal);
+}
+
+.glass-panel:hover {
+  border-color: var(--border-light);
+}
+
+/* Scrollbar Tasarımı */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-main);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--text-muted);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+a {
+  color: var(--primary);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+a:hover {
+  color: var(--primary-glow);
+}

@@ -58,6 +58,12 @@ public class VehicleServiceImpl implements IVehicleService {
             dto.setPlateNumber(v.getPlateNumber());
             dto.setBatteryCapacity(v.getBatteryCapacity());
             dto.setDriverId(v.getOwner().getId());
+
+            if (v.getConnectorType() != null) {
+                dto.setConnectorTypeId(v.getConnectorType().getId());
+                dto.setConnectorTypeName(v.getConnectorType().getName());
+            }
+
             return dto;
         }).collect(Collectors.toList());
     }

@@ -35,9 +35,11 @@ public class MapServiceImpl implements IMapService {
                     double distance = calculateHaversine(userLat, userLng, station.getLatitude(), station.getLongitude());
                     dto.setDistance(distance);
 
-                    if (!station.getChargers().isEmpty()) {
-                        dto.setConnectorType(station.getChargers().get(0).getConnectorType().getName());
-                    }
+                    List<String> connectorTypes = station.getChargers().stream()
+                            .map(c -> c.getConnectorType().getName())
+                            .distinct()
+                            .collect(Collectors.toList());
+                    dto.setConnectorTypes(connectorTypes);
 
                     //İstasyonun anlık durumunu belirleme (Color Coding)
                     dto.setStatus(determineStationStatus(station));
@@ -45,7 +47,7 @@ public class MapServiceImpl implements IMapService {
                     return dto;
                 })
                 //Filtreleme Mantığı (Soket tipi veya mesafe sınırı)
-                .filter(dto -> connectorType == null || dto.getConnectorType().equalsIgnoreCase(connectorType))
+                .filter(dto -> connectorType == null || dto.getConnectorTypes().stream().anyMatch(ct -> ct.equalsIgnoreCase(connectorType)))
                 .sorted(Comparator.comparingDouble(StationMapDto::getDistance)) // En yakını en üste al
                 .collect(Collectors.toList());
     }

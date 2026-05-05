@@ -30,5 +30,5 @@ public class Charger {
 
     @ManyToOne
     @JoinColumn(name = "connector_type_id")
-    private ConnectorType connectorType; // [cite: 250]
+    private ConnectorType connectorType;
 }

@@ -1,6 +1,5 @@
 package com.ev.service.impl;
 
-import com.ev.model.ChargingSession;
 import com.ev.repository.ChargingSessionRepository;
 import com.ev.service.IAdminService;
 import lombok.RequiredArgsConstructor;
@@ -33,8 +32,7 @@ public class AdminServiceImpl implements IAdminService {
         return sessionRepository.findAll().stream()
                 .collect(Collectors.groupingBy(
                         s -> s.getReservation().getCharger().getStation().getStationName(),
-                        Collectors.counting()
-                ));
+                        Collectors.counting()));
     }
 
     @Override
@@ -43,7 +41,6 @@ public class AdminServiceImpl implements IAdminService {
         return sessionRepository.findAll().stream()
                 .collect(Collectors.groupingBy(
                         s -> s.getStartTime().getHour(),
-                        Collectors.counting()
-                ));
+                        Collectors.counting()));
     }
 }

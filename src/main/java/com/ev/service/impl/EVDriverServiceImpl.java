@@ -72,6 +72,14 @@ public class EVDriverServiceImpl implements IEVDriverService {
         dto.setLastName(driver.getLastName());
         dto.setEmail(driver.getEmail());
         dto.setWalletBalance(driver.getWalletBalance());
+
+        if (driver.getFavoriteStations() != null) {
+            List<Long> favoriteStationIds = driver.getFavoriteStations().stream()
+                    .map(ChargingStation::getId)
+                    .collect(Collectors.toList());
+            dto.setFavoriteStationIds(favoriteStationIds);
+        }
+
         return dto;
     }
 

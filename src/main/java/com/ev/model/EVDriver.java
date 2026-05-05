@@ -8,6 +8,7 @@ import lombok.ToString;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "ev_drivers")
@@ -26,7 +27,7 @@ public class EVDriver {
     @Column(name = "last_name")
     private String lastName;
 
-    @Column(name = "email")
+    @Column(name = "email", unique = true)
     private String email;
 
     @Column(name = "wallet_balance")
@@ -42,5 +43,5 @@ public class EVDriver {
             joinColumns = @JoinColumn(name = "driver_id"),
             inverseJoinColumns = @JoinColumn(name = "station_id")
     )
-    private List<ChargingStation> favoriteStations;
+    private Set<ChargingStation> favoriteStations;
 }

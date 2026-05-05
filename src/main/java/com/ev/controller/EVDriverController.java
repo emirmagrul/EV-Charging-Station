@@ -30,4 +30,21 @@ public class EVDriverController {
         evDriverService.addBalance(id, amount);
         return ResponseEntity.ok("Bakiye başarıyla eklendi.");
     }
+
+    @PostMapping("/{id}/favorites/{stationId}")
+    public ResponseEntity<String> addFavorite(@PathVariable Long id, @PathVariable Long stationId) {
+        evDriverService.addStationToFavorites(id, stationId);
+        return ResponseEntity.ok("İstasyon favorilere eklendi.");
+    }
+
+    @DeleteMapping("/{id}/favorites/{stationId}")
+    public ResponseEntity<String> removeFavorite(@PathVariable Long id, @PathVariable Long stationId) {
+        evDriverService.removeStationFromFavorites(id, stationId);
+        return ResponseEntity.ok("İstasyon favorilerden çıkarıldı.");
+    }
+
+    @GetMapping("/{id}/favorites")
+    public ResponseEntity<java.util.List<com.ev.dto.ChargingStationDto>> getFavorites(@PathVariable Long id) {
+        return ResponseEntity.ok(evDriverService.getFavoriteStations(id));
+    }
 }

@@ -38,10 +38,6 @@ public class EVDriver {
     private List<Vehicle> vehicles;
 
     @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "driver_favorite_stations",
-            joinColumns = @JoinColumn(name = "driver_id"),
-            inverseJoinColumns = @JoinColumn(name = "station_id")
-    )
+    @JoinTable(name = "driver_favorite_stations", joinColumns = @JoinColumn(name = "driver_id"), inverseJoinColumns = @JoinColumn(name = "station_id"))
     private Set<ChargingStation> favoriteStations;
 }

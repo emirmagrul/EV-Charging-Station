@@ -23,8 +23,8 @@ public class ChargingSessionServiceImpl implements IChargingSessionService {
 
     private final ChargingSessionRepository chargingSessionRepository;
     private final ReservationRepository reservationRepository;
-    private final IEVDriverService evDriverService; //cüzdan ödemesi için
-    private final IChargerService chargerService; //Cihaz durumunu güncellemek için
+    private final IEVDriverService evDriverService; // cüzdan ödemesi için
+    private final IChargerService chargerService; // Cihaz durumunu güncellemek için
 
     @Override
     @Transactional
@@ -51,7 +51,7 @@ public class ChargingSessionServiceImpl implements IChargingSessionService {
             throw new RuntimeException("Hata: Rezervasyon süreniz dolmuş. Yeni bir rezervasyon yapmalısınız.");
         }
 
-        //Seans başlatma
+        // Seans başlatma
         ChargingSession session = new ChargingSession();
         session.setReservation(reservation);
         session.setStartTime(LocalDateTime.now());
@@ -82,7 +82,7 @@ public class ChargingSessionServiceImpl implements IChargingSessionService {
         session.setEnergyConsumedKwh(energyConsumedKWh);
         session.setStatus(SessionStatus.FINISHED);
 
-        //Gerçek maliyeti Hesaplama
+        // Gerçek maliyeti Hesaplama
         BigDecimal unitPrice = session.getReservation().getCharger().getStation().getPricingPerKWh();
         BigDecimal actualCost = unitPrice.multiply(BigDecimal.valueOf(energyConsumedKWh));
         session.setTotalCost(actualCost);
@@ -103,7 +103,8 @@ public class ChargingSessionServiceImpl implements IChargingSessionService {
         chargingSessionRepository.save(session);
 
         session.getReservation().setStatus(ReservationStatus.COMPLETED);
-        chargerService.updateStatus(session.getReservation().getCharger().getId(), com.ev.model.enums.ChargerStatus.AVAILABLE);
+        chargerService.updateStatus(session.getReservation().getCharger().getId(),
+                com.ev.model.enums.ChargerStatus.AVAILABLE);
 
         ChargingSessionDto responseDto = new ChargingSessionDto();
         responseDto.setId(session.getId());

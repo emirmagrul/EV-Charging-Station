@@ -1,6 +1,7 @@
 package com.ev.service.impl;
 
 import com.ev.dto.ChargerDto;
+import com.ev.dto.ConnectorTypeDto;
 import com.ev.model.*;
 import com.ev.model.enums.ChargerStatus;
 import com.ev.model.enums.ReservationStatus;
@@ -34,12 +35,12 @@ public class ChargerServiceImpl implements IChargerService {
 
         charger.setStatus(chargerDto.getStatus() != null ? chargerDto.getStatus() : ChargerStatus.AVAILABLE);
 
-        //İstasyon bağlama
+        // İstasyon bağlama
         ChargingStation station = stationRepository.findById(chargerDto.getStationId())
                 .orElseThrow(() -> new RuntimeException("İstasyon bulunamadı!"));
         charger.setStation(station);
 
-        //Soket bağlantısı
+        // Soket bağlantısı
         ConnectorType type = connectorTypeRepository.findById(chargerDto.getConnectorType().getId())
                 .orElseThrow(() -> new RuntimeException("Soket tipi bulunamadı!"));
         charger.setConnectorType(type);
@@ -60,8 +61,10 @@ public class ChargerServiceImpl implements IChargerService {
             dto.setStationId(c.getStation().getId());
 
             if (c.getConnectorType() != null) {
-                dto.getConnectorType().setId(c.getConnectorType().getId());
-                dto.getConnectorType().setName(c.getConnectorType().getName());
+                ConnectorTypeDto ctDto = new ConnectorTypeDto();
+                ctDto.setId(c.getConnectorType().getId());
+                ctDto.setName(c.getConnectorType().getName());
+                dto.setConnectorType(ctDto);
             }
 
             return dto;
@@ -76,7 +79,7 @@ public class ChargerServiceImpl implements IChargerService {
         charger.setStatus(newStatus);
         chargerRepository.save(charger);
 
-        //Offline olursa mevcut tüm rezervasyonları iptal et
+        // Offline olursa mevcut tüm rezervasyonları iptal et
         if (ChargerStatus.OFFLINE.equals(newStatus)) {
             List<Reservation> affectedReservations = reservationRepository
                     .findByChargerIdAndStatus(chargerId, ReservationStatus.CONFIRMED);

@@ -35,4 +35,20 @@ public class ReservationCleanupTask {
             reservationRepository.saveAll(expiredReservations);
         }
     }
+
+    @Scheduled(fixedRate = 60000)
+    @Transactional
+    public void completeFinishedReservations() {
+        List<Reservation> finished = reservationRepository.findFinishedReservations(
+                java.time.LocalDate.now(),
+                java.time.LocalTime.now());
+
+        if (!finished.isEmpty()) {
+            for (Reservation res : finished) {
+                res.setStatus(ReservationStatus.COMPLETED);
+                log.info("Rezervasyon bittiği için tamamlandı olarak işaretlendi ID: {}", res.getId());
+            }
+            reservationRepository.saveAll(finished);
+        }
+    }
 }

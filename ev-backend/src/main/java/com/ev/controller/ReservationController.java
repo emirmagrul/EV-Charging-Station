@@ -40,4 +40,11 @@ public class ReservationController {
     public ResponseEntity<List<ReservationDto>> getMyReservations(@PathVariable Long driverId) {
         return ResponseEntity.ok(reservationService.getMyReservations(driverId));
     }
-}
+
+    @GetMapping("/charger/{chargerId}/booked-slots")
+    public ResponseEntity<List<ReservationDto>> getBookedSlots(
+            @PathVariable Long chargerId, 
+            @RequestParam @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate date) {
+        return ResponseEntity.ok(reservationService.getBookedSlots(chargerId, date));
+    }
+}

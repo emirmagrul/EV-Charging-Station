@@ -9,7 +9,7 @@ import java.util.List;
 public interface IEVDriverService {
     EVDriverDto createDriver(EVDriverDto evDriverDto);
 
-    EVDriverDto login(String email, String password);
+    EVDriverDto login(String email, String password, com.ev.model.enums.UserRole requiredRole);
 
     void addBalance(Long driverId, BigDecimal amount);
 

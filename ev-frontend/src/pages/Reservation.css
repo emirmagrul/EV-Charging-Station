@@ -1,0 +1,221 @@
+.reservation-page {
+  padding: 40px 20px;
+  max-width: 1000px;
+  margin: 0 auto;
+  color: var(--text-light);
+}
+
+.reservation-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.station-info-card, .reservation-panel {
+  padding: 25px;
+  border-radius: 16px;
+  background: rgba(25, 25, 35, 0.6);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.station-info-card h2 {
+  color: var(--primary);
+  margin-bottom: 10px;
+}
+
+.station-info-card p {
+  margin: 5px 0;
+  color: #ccc;
+}
+
+.selection-group {
+  margin-bottom: 25px;
+}
+
+.selection-group label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 10px;
+  color: #eee;
+}
+
+.charger-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 15px;
+}
+
+.charger-card {
+  padding: 15px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+.charger-card:hover {
+  background: rgba(255,255,255,0.05);
+}
+
+.charger-card.selected {
+  border-color: var(--primary);
+  background: rgba(0, 240, 255, 0.1);
+}
+
+.charger-card .power {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: var(--secondary);
+  margin: 5px 0;
+}
+
+.charger-card .type {
+  font-size: 0.9rem;
+  color: #aaa;
+}
+
+.date-picker {
+  padding: 10px 15px;
+  border-radius: 8px;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: white;
+  font-family: inherit;
+  font-size: 1rem;
+}
+
+.time-slots {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 10px;
+  max-height: 250px;
+  overflow-y: auto;
+  padding-right: 10px;
+}
+
+/* Scrollbar styling for time-slots */
+.time-slots::-webkit-scrollbar { width: 6px; }
+.time-slots::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); border-radius: 4px; }
+.time-slots::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+
+.time-slot {
+  padding: 10px 5px;
+  text-align: center;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.time-slot:hover:not(.disabled) {
+  background: rgba(255,255,255,0.1);
+}
+
+.time-slot.selected {
+  background: var(--primary);
+  color: #000;
+  border-color: var(--primary);
+  font-weight: bold;
+}
+
+.time-slot.disabled {
+  background: rgba(255, 0, 0, 0.1);
+  border-color: rgba(255, 0, 0, 0.2);
+  color: #666;
+  cursor: not-allowed;
+  text-decoration: line-through;
+}
+
+.btn-outline-mini {
+  padding: 8px 16px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.9rem;
+}
+
+.btn-outline-mini:hover {
+  background: rgba(255,255,255,0.1);
+}
+
+.btn-outline-mini.active {
+  background: var(--primary);
+  color: #000;
+  border-color: var(--primary);
+  font-weight: bold;
+  box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
+}
+
+.summary-panel {
+  background: rgba(0, 0, 0, 0.3);
+  padding: 20px;
+  border-radius: 12px;
+  margin-top: 20px;
+  border: 1px dashed rgba(255,255,255,0.2);
+}
+
+.summary-panel p {
+  display: flex;
+  justify-content: space-between;
+  margin: 10px 0;
+  font-size: 1.1rem;
+}
+
+.summary-panel p.total {
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: var(--secondary);
+  border-top: 1px solid rgba(255,255,255,0.1);
+  padding-top: 10px;
+  margin-top: 10px;
+}
+
+.reservation-actions {
+  display: flex;
+  gap: 15px;
+  margin-top: 25px;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(5px);
+}
+
+.payment-modal {
+  background: var(--dark-bg);
+  padding: 30px;
+  border-radius: 16px;
+  border: 1px solid var(--primary);
+  max-width: 400px;
+  width: 100%;
+  text-align: center;
+}
+
+.payment-modal h3 {
+  color: var(--primary);
+  margin-bottom: 15px;
+}
+
+.payment-modal p {
+  margin-bottom: 25px;
+  font-size: 1.1rem;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 15px;
+}

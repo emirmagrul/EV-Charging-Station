@@ -3,6 +3,7 @@ package com.ev.service.impl;
 import com.ev.dto.ChargingStationDto;
 import com.ev.model.ChargingStation;
 import com.ev.model.StationOperator;
+import com.ev.model.enums.ChargerStatus;
 import com.ev.repository.ChargingStationRepository;
 import com.ev.repository.StationOperatorRepository;
 import com.ev.service.IChargingStationService;
@@ -42,6 +43,7 @@ public class ChargingStationServiceImpl implements IChargingStationService {
     }
 
     @Override
+    @Transactional
     public List<ChargingStationDto> findAll() {
         return stationRepository.findAll().stream().map(s -> {
             return getChargingStationDto(s);
@@ -49,6 +51,7 @@ public class ChargingStationServiceImpl implements IChargingStationService {
     }
 
     @Override
+    @Transactional
     public ChargingStationDto findById(Long id) {
         ChargingStation s = stationRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("İstasyon bulunamadı!"));
@@ -72,6 +75,22 @@ public class ChargingStationServiceImpl implements IChargingStationService {
                     .distinct()
                     .collect(Collectors.toList());
             dto.setSupportedConnectorTypeIds(connectorIds);
+
+            // İstasyonun genel durumunu şarj ünitelerinden türet
+            boolean hasAvailable = s.getChargers().stream()
+                    .anyMatch(c -> ChargerStatus.AVAILABLE.equals(c.getStatus()));
+            boolean allOffline = s.getChargers().stream()
+                    .allMatch(c -> ChargerStatus.OFFLINE.equals(c.getStatus()));
+
+            if (hasAvailable) {
+                dto.setStatus(ChargerStatus.AVAILABLE);
+            } else if (allOffline) {
+                dto.setStatus(ChargerStatus.OFFLINE);
+            } else {
+                dto.setStatus(ChargerStatus.OCCUPIED);
+            }
+        } else {
+            dto.setStatus(ChargerStatus.OFFLINE);
         }
         
         return dto;

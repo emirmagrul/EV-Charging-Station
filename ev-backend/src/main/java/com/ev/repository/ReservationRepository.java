@@ -35,4 +35,10 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
 
     // 10 dakikadan eski ve hala PENDING olan rezervasyonları bulmak için
     List<Reservation> findByStatusAndCreatedAtBefore(ReservationStatus status, LocalDateTime dateTime);
+
+    List<Reservation> findByChargerIdAndReservationDateAndStatusIn(Long chargerId, LocalDate date, List<ReservationStatus> statuses);
+
+    @Query("SELECT r FROM Reservation r WHERE r.status = 'CONFIRMED' AND (r.reservationDate < :today OR (r.reservationDate = :today AND r.endTime < :nowTime))")
+    List<Reservation> findFinishedReservations(@Param("today") LocalDate today, @Param("nowTime") LocalTime nowTime);
 }
+

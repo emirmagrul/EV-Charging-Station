@@ -84,6 +84,19 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const refreshUser = async () => {
+    if (!user) return;
+    try {
+      const profileRes = await api.get(`/drivers/${user.id}`);
+      const updatedUser = profileRes.data;
+      setUser(updatedUser);
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+    } catch (err) {
+      console.error("Kullanıcı güncellenemedi:", err);
+    }
+  };
+
+
 
 
   const toggleFavorite = async (station) => {
@@ -107,8 +120,9 @@ export const AuthProvider = ({ children }) => {
     <AuthContext.Provider value={{ 
       user, isAuthenticated, login, logout,
       favorites, setFavorites, toggleFavorite,
-      vehicles, setVehicles, deleteVehicle, addBalance
+      vehicles, setVehicles, deleteVehicle, addBalance, refreshUser
     }}>
+
 
 
       {children}

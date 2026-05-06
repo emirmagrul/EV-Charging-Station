@@ -12,6 +12,7 @@ import com.ev.repository.ReservationRepository;
 import com.ev.service.IChargerService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ChargerServiceImpl implements IChargerService {
 
     private final ChargerRepository chargerRepository;
@@ -79,18 +81,23 @@ public class ChargerServiceImpl implements IChargerService {
         charger.setStatus(newStatus);
         chargerRepository.save(charger);
 
-        // Offline olursa mevcut tüm rezervasyonları iptal et
+        // Offline olursa mevcut tüm rezervasyonları iptal et (CONFIRMED + PENDING)
         if (ChargerStatus.OFFLINE.equals(newStatus)) {
-            List<Reservation> affectedReservations = reservationRepository
+            List<Reservation> confirmedReservations = reservationRepository
                     .findByChargerIdAndStatus(chargerId, ReservationStatus.CONFIRMED);
+            List<Reservation> pendingReservations = reservationRepository
+                    .findByChargerIdAndStatus(chargerId, ReservationStatus.PENDING);
 
-            for (Reservation res : affectedReservations) {
+            List<Reservation> allAffected = new java.util.ArrayList<>();
+            allAffected.addAll(confirmedReservations);
+            allAffected.addAll(pendingReservations);
+
+            for (Reservation res : allAffected) {
                 if (!res.getReservationDate().isBefore(LocalDate.now())) {
                     res.setStatus(ReservationStatus.CANCELLED_BY_OPERATOR);
                     reservationRepository.save(res);
-
-                    System.out.println("BİLDİRİM: Sürücü " + res.getDriver().getEmail() +
-                            " için rezervasyon iptal edildi. Sebep: Cihaz Bakımı.");
+                    log.info("Cihaz bakıma alındı: Sürücü {} için rezervasyon {} iptal edildi.",
+                            res.getDriver().getEmail(), res.getId());
                 }
             }
         }

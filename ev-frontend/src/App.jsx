@@ -4,6 +4,7 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import AddVehicle from './pages/AddVehicle';
+import Reservation from './pages/Reservation';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { UIProvider } from './context/UIContext';
 
@@ -39,8 +40,17 @@ function App() {
                     </ProtectedRoute>
                   } 
                 />
+                <Route 
+                  path="/reserve/:stationId" 
+                  element={
+                    <ProtectedRoute>
+                      <Reservation />
+                    </ProtectedRoute>
+                  } 
+                />
               </Routes>
             </main>
+
           </div>
         </Router>
       </UIProvider>

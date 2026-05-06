@@ -14,6 +14,7 @@ import com.ev.service.IEVDriverService;
 import com.ev.service.IReservationService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -25,6 +26,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ReservationServiceImpl implements IReservationService {
 
     private final ReservationRepository reservationRepository;
@@ -43,10 +45,10 @@ public class ReservationServiceImpl implements IReservationService {
             throw new RuntimeException("Hata: Rezervasyon süresi 2 saati aşamaz!");
         }
 
-        //En geç 24 saat önceden rezervasyon yapılabilir.
+        //En fazla 24 saat sonrasına rezervasyon yapılabilir.
         LocalDateTime requestedStart = LocalDateTime.of(reservationDto.getReservationDate(), reservationDto.getStartTime());
         if (requestedStart.isAfter(LocalDateTime.now().plusHours(24))) {
-            throw new RuntimeException("Hata: Rezervasyonlar en fazla 24 saat öncesinden yapılabilir!");
+            throw new RuntimeException("Hata: Rezervasyonlar en fazla 24 saat sonrasına (ileriye dönük) yapılabilir!");
         }
         if (requestedStart.isBefore(LocalDateTime.now())) {
             throw new RuntimeException("Hata: Geçmiş bir zamana rezervasyon yapılamaz!");
@@ -118,7 +120,7 @@ public class ReservationServiceImpl implements IReservationService {
         res.setStatus(ReservationStatus.CONFIRMED);
         reservationRepository.save(res);
 
-        System.out.println("ÖDEME ONAYI: Sürücüden " + estimatedCost + " TL tahsil edildi.");
+        log.info("ÖDEME ONAYI: Sürücü ID={} için {} TL tahsil edildi.", res.getDriver().getId(), estimatedCost);
     }
 
     @Override
@@ -127,8 +129,8 @@ public class ReservationServiceImpl implements IReservationService {
         Reservation res = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new RuntimeException("Rezervasyon bulunamadı"));
 
-        if (!ReservationStatus.CONFIRMED.equals(res.getStatus())) {
-            throw new RuntimeException("Hata: Sadece onaylanmış (CONFIRMED) rezervasyonlar iptal edilebilir.");
+        if (!(ReservationStatus.CONFIRMED.equals(res.getStatus()) || ReservationStatus.PENDING.equals(res.getStatus()))) {
+            throw new RuntimeException("Hata: Sadece onaylanmış veya bekleyen rezervasyonlar iptal edilebilir.");
         }
 
         LocalDateTime reservationStart = LocalDateTime.of(res.getReservationDate(), res.getStartTime());
@@ -136,10 +138,11 @@ public class ReservationServiceImpl implements IReservationService {
             throw new RuntimeException("Hata: Başlama saati geçmiş olan bir rezervasyon iptal edilemez!");
         }
 
-        // İade edilecek tutarı aynı merkezi metodla hesaplıyoruz
-        BigDecimal prepaidAmount = calculateReservationCost(res);
-
-        evDriverService.addBalance(res.getDriver().getId(), prepaidAmount);
+        if (ReservationStatus.CONFIRMED.equals(res.getStatus())) {
+            // Sadece onaylanmış işlemlerde cüzdandan para çekildiği için iade yapıyoruz
+            BigDecimal prepaidAmount = calculateReservationCost(res);
+            evDriverService.addBalance(res.getDriver().getId(), prepaidAmount);
+        }
 
         res.setStatus(ReservationStatus.CANCELLED);
         reservationRepository.save(res);
@@ -156,6 +159,7 @@ public class ReservationServiceImpl implements IReservationService {
     }
 
     @Override
+    @Transactional
     public List<ReservationDto> getMyReservations(Long driverId) {
         return reservationRepository.findByDriverId(driverId).stream().map(res -> {
             ReservationDto dto = new ReservationDto();
@@ -175,4 +179,20 @@ public class ReservationServiceImpl implements IReservationService {
             return dto;
         }).collect(Collectors.toList());
     }
-}
+
+    @Override
+    @Transactional
+    public List<ReservationDto> getBookedSlots(Long chargerId, java.time.LocalDate date) {
+        List<Reservation> booked = reservationRepository.findByChargerIdAndReservationDateAndStatusIn(
+                chargerId, date, List.of(ReservationStatus.PENDING, ReservationStatus.CONFIRMED));
+
+        return booked.stream().map(res -> {
+            ReservationDto dto = new ReservationDto();
+            dto.setId(res.getId());
+            dto.setStartTime(res.getStartTime());
+            dto.setEndTime(res.getEndTime());
+            dto.setStatus(res.getStatus());
+            return dto;
+        }).collect(Collectors.toList());
+    }
+}

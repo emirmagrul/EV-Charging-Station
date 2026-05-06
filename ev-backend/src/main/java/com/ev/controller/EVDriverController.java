@@ -22,7 +22,8 @@ public class EVDriverController {
 
     @PostMapping("/login")
     public ResponseEntity<EVDriverDto> login(@RequestBody EVDriverDto loginDto) {
-        return ResponseEntity.ok(evDriverService.login(loginDto.getEmail(), loginDto.getPassword()));
+        // loginDto.getRole() artık UserRole tipinde dönecek
+        return ResponseEntity.ok(evDriverService.login(loginDto.getEmail(), loginDto.getPassword(), loginDto.getRole()));
     }
 
 

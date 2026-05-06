@@ -9,6 +9,7 @@ import com.ev.repository.EVDriverRepository;
 import com.ev.service.IEVDriverService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -17,6 +18,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class EVDriverServiceImpl implements IEVDriverService {
 
     private final EVDriverRepository evDriverRepository;
@@ -38,23 +40,41 @@ public class EVDriverServiceImpl implements IEVDriverService {
 
         evDriver.setWalletBalance(
                 evDriverDto.getWalletBalance() != null ? evDriverDto.getWalletBalance() : BigDecimal.ZERO);
+        
+        // Yeni kayıtlar her zaman DRIVER olur
+        evDriver.setRole(com.ev.model.enums.UserRole.DRIVER);
 
         EVDriver savedDriver = evDriverRepository.save(evDriver);
         evDriverDto.setId(savedDriver.getId());
+        evDriverDto.setRole(com.ev.model.enums.UserRole.DRIVER);
         evDriverDto.setPassword(null); // Geriye şifreyi dönme
         return evDriverDto;
     }
 
     @Override
-    public EVDriverDto login(String email, String password) {
+    public EVDriverDto login(String email, String password, com.ev.model.enums.UserRole requiredRole) {
+        log.info("Giriş Denemesi: {} | İstenen Rol: {}", email, requiredRole);
+        
         EVDriver driver = evDriverRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("E-posta veya şifre hatalı!"));
 
-        // Şifre boşsa (eski kayıtlar için) veya eşleşmiyorsa hata ver
+        log.info("Kullanıcı Bulundu: {} | DB Rolü: {}", driver.getEmail(), driver.getRole());
+
         if (driver.getPassword() == null || !driver.getPassword().equals(password)) {
             throw new RuntimeException("E-posta veya şifre hatalı!");
         }
 
+        // Rol kontrolü: Null güvenli karşılaştırma
+        if (driver.getRole() == null || driver.getRole() != requiredRole) {
+            log.error("YETKİSİZ GİRİŞ: DB'deki {} rolü {} ile uyuşmuyor!", driver.getRole(), requiredRole);
+            throw new RuntimeException("Yetkisiz giriş: Bu hesap için " + requiredRole + " yetkisi bulunamadı!");
+        }
+
+        log.info("Giriş Başarılı: {}", email);
+        return mapToDto(driver);
+    }
+
+    private EVDriverDto mapToDto(EVDriver driver) {
         EVDriverDto dto = new EVDriverDto();
 
         dto.setId(driver.getId());
@@ -62,6 +82,7 @@ public class EVDriverServiceImpl implements IEVDriverService {
         dto.setLastName(driver.getLastName());
         dto.setEmail(driver.getEmail());
         dto.setWalletBalance(driver.getWalletBalance());
+        dto.setRole(driver.getRole());
         return dto;
     }
 
@@ -89,6 +110,7 @@ public class EVDriverServiceImpl implements IEVDriverService {
     }
 
     @Override
+    @Transactional
     public EVDriverDto findById(Long id) {
         EVDriver driver = evDriverRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Sürücü bulunamadı!"));
@@ -135,6 +157,7 @@ public class EVDriverServiceImpl implements IEVDriverService {
     }
 
     @Override
+    @Transactional
     public List<ChargingStationDto> getFavoriteStations(Long driverId) {
         EVDriver driver = evDriverRepository.findById(driverId)
                 .orElseThrow(() -> new RuntimeException("Sürücü bulunamadı!"));
@@ -147,10 +170,6 @@ public class EVDriverServiceImpl implements IEVDriverService {
             dto.setLatitude(s.getLatitude());
             dto.setLongitude(s.getLongitude());
             
-            if (s.getResponsibleOperator() != null) {
-                // Eğer marka/operatör bilgisini dönmek istersen DTO'ya alan ekleyebilirsin
-                // Şimdilik sadece var olan alanları dönelim
-            }
             return dto;
         }).collect(Collectors.toList());
     }

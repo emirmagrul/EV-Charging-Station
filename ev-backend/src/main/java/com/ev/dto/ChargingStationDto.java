@@ -1,5 +1,6 @@
 package com.ev.dto;
 
+import com.ev.model.enums.ChargerStatus;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -14,5 +15,6 @@ public class ChargingStationDto {
     private String operatingHours;
     private BigDecimal pricingPerKWh;
     private java.util.List<Long> supportedConnectorTypeIds;
+    private ChargerStatus status;
 }
 

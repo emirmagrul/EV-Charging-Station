@@ -10,8 +10,13 @@ import java.time.LocalTime;
 public class ReservationDto {
     private Long id;
     private LocalDate reservationDate;
+    
+    @com.fasterxml.jackson.annotation.JsonFormat(pattern = "HH:mm:ss")
     private LocalTime startTime;
+    
+    @com.fasterxml.jackson.annotation.JsonFormat(pattern = "HH:mm:ss")
     private LocalTime endTime;
+    
     private ReservationStatus status;
     private Long driverId;
     private Long chargerId;

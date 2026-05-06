@@ -1,8 +1,8 @@
 import api from './api';
 
 const authService = {
-  login: async (email, password) => {
-    const response = await api.post('/drivers/login', { email, password });
+  login: async (email, password, role) => {
+    const response = await api.post('/drivers/login', { email, password, role });
     return response.data;
   },
 

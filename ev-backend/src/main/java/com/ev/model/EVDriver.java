@@ -37,6 +37,10 @@ public class EVDriver {
     @Column(name = "wallet_balance")
     private BigDecimal walletBalance;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role")
+    private com.ev.model.enums.UserRole role = com.ev.model.enums.UserRole.DRIVER;
+
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
     @ToString.Exclude
     private List<Vehicle> vehicles;

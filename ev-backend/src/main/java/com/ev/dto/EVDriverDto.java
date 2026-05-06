@@ -14,5 +14,6 @@ public class EVDriverDto {
     private String password;
 
     private BigDecimal walletBalance;
+    private com.ev.model.enums.UserRole role; 
     private List<Long> favoriteStationIds;
 }

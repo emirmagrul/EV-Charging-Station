@@ -39,24 +39,123 @@
   transition: color var(--transition-fast);
 }
 
-.nav-link:hover {
+.nav-link:hover, .nav-link-btn:hover {
   color: var(--primary);
 }
 
-/* Navbar Buton Stili */
-.navbar .btn-primary {
-  padding: 0.6rem 1.4rem;
-  background-color: var(--primary);
-  color: white;
+.nav-link-btn {
+  background: transparent;
   border: none;
-  border-radius: 10px;
-  font-weight: 600;
+  color: var(--text-main);
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: 500;
   cursor: pointer;
-  transition: all var(--transition-fast);
+  padding: 0;
+  transition: color var(--transition-fast);
 }
 
-.navbar .btn-primary:hover {
-  background-color: var(--primary-dark);
-  box-shadow: 0 0 15px var(--primary-glow);
-  transform: translateY(-1px);
+
+/* Dropdown Styles */
+.nav-item-dropdown {
+  position: relative;
 }
+
+.dropdown-panel {
+  position: absolute;
+  top: calc(100% + 15px);
+  right: 0;
+  width: 320px;
+  padding: 1.2rem;
+  border-radius: 18px;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+  z-index: 1001;
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.dropdown-header {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 1rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.dropdown-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0.8rem;
+  border-radius: 12px;
+  transition: background 0.2s;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.dropdown-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.item-info h4 {
+  font-size: 0.95rem;
+  margin-bottom: 2px;
+}
+
+.item-info p {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.count-badge {
+  background: var(--primary);
+  color: white;
+  font-size: 0.7rem;
+  padding: 2px 6px;
+  border-radius: 6px;
+  margin-left: 4px;
+}
+
+.empty-dropdown {
+  padding: 1.5rem;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+.remove-btn-mini {
+  background: transparent;
+  border: none;
+  color: #ef4444;
+  cursor: pointer;
+  padding: 5px;
+  font-size: 0.9rem;
+  margin-left: auto;
+  opacity: 0.5;
+  transition: opacity 0.2s;
+}
+
+.remove-btn-mini:hover {
+  opacity: 1;
+}
+
+.btn-full {
+  width: 100%;
+  margin-top: 0.5rem;
+  padding: 0.7rem;
+}
+
+

@@ -104,6 +104,16 @@ const Home = () => {
     setViewMode('map');
   };
 
+  const handleReservation = (stationId) => {
+    const token = localStorage.getItem('token'); // Basit auth kontrolü
+    if (!token) {
+      alert("Rezervasyon yapmak için önce giriş yapmalısınız.");
+      navigate('/login');
+    } else {
+      navigate(`/reserve/${stationId}`);
+    }
+  };
+
   return (
     <div className="home-container">
       <section className="hero-section">
@@ -122,9 +132,12 @@ const Home = () => {
               <div key={st.id} className="glass-panel recommended-card">
                 <div className="rec-badge">Yakınında</div>
                 <h3>{st.stationName}</h3>
-                <div className="card-actions-row">
-                  <button className="btn-primary-new" onClick={() => navigate(`/stations/${st.id}`)}>İncele</button>
-                  <button className="btn-outline-mini" onClick={() => startInternalRouting(st)}>Rota</button>
+                <div className="card-actions-row vertical">
+                  <button className="btn-primary-new" onClick={() => handleReservation(st.id)}>Rezervasyon Yap</button>
+                  <div className="card-secondary-actions">
+                    <button className="btn-outline-mini" onClick={() => navigate(`/stations/${st.id}`)}>Detay</button>
+                    <button className="btn-outline-mini" onClick={() => startInternalRouting(st)}>Rota</button>
+                  </div>
                 </div>
               </div>
             ))}
@@ -163,8 +176,13 @@ const Home = () => {
                   <h3>{station.stationName}</h3>
                   <p className="address-text">📍 {station.address}</p>
                   <div className="premium-card-footer">
-                    <button className="btn-primary-new" onClick={() => navigate(`/stations/${station.id}`)}>İncele & Şarj</button>
-                    <button className="btn-outline" onClick={() => startInternalRouting(station)}>Yol Tarifi</button>
+                    <button className="btn-primary-new" onClick={() => handleReservation(station.id)}>
+                      ⚡ Rezervasyon Yap
+                    </button>
+                    <div className="card-secondary-actions">
+                      <button className="btn-outline-mini" onClick={() => navigate(`/stations/${station.id}`)}>Detay</button>
+                      <button className="btn-outline-mini" onClick={() => startInternalRouting(station)}>Yol Tarifi</button>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -211,6 +229,7 @@ const Home = () => {
                         <strong>{st.stationName}</strong>
                         <div className="popup-buttons">
                           <button onClick={() => navigate(`/stations/${st.id}`)} className="btn-mini-primary">Detay</button>
+                          <button onClick={() => handleReservation(st.id)} className="btn-mini-outline">Rezervasyon</button>
                           <button onClick={() => startInternalRouting(st)} className="btn-mini-outline">Rota</button>
                         </div>
                       </div>

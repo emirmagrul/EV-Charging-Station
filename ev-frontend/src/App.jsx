@@ -1,21 +1,44 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
+import Login from './pages/Login';
+import Dashboard from './pages/Dashboard';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import { UIProvider } from './context/UIContext';
+
+const ProtectedRoute = ({ children }) => {
+  const { isAuthenticated } = useAuth();
+  return isAuthenticated ? children : <Navigate to="/login" />;
+};
 
 function App() {
   return (
-    <Router>
-      <div className="app">
-        <Navbar />
-        <main style={{ padding: '20px' }}>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            {/* Diğer sayfalar (Login, Register vb.) sırayla eklenecek */}
-          </Routes>
-        </main>
-      </div>
-    </Router>
+    <AuthProvider>
+      <UIProvider>
+        <Router>
+          <div className="app">
+            <Navbar />
+            <main>
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/login" element={<Login />} />
+                <Route 
+                  path="/dashboard" 
+                  element={
+                    <ProtectedRoute>
+                      <Dashboard />
+                    </ProtectedRoute>
+                  } 
+                />
+              </Routes>
+            </main>
+          </div>
+        </Router>
+      </UIProvider>
+    </AuthProvider>
   );
+
 }
+
 
 export default App;

@@ -9,4 +9,6 @@ import java.util.List;
 @Repository
 public interface VehicleRepository extends JpaRepository<Vehicle, Long> {
     List<Vehicle> findByOwnerId(Long ownerId); // Kullanıcının araçlarını listeler [cite: 95]
+    boolean existsByPlateNumber(String plateNumber);
 }
+

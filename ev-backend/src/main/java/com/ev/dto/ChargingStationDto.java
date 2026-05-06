@@ -13,4 +13,6 @@ public class ChargingStationDto {
     private Double longitude;
     private String operatingHours;
     private BigDecimal pricingPerKWh;
+    private java.util.List<Long> supportedConnectorTypeIds;
 }
+

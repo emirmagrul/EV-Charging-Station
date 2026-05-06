@@ -12,11 +12,14 @@ import './Dashboard.css';
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const { user, favorites, toggleFavorite } = useAuth();
+  const { user, favorites, toggleFavorite, addBalance } = useAuth();
+
   const { 
     selectedStation, 
-    setShowFavoritesModal 
+    setShowFavoritesModal,
+    selectedVehicle, setSelectedVehicle
   } = useUI();
+
   
   const { stations, loading: stationsLoading } = useStations();
   const { coords: userCoords } = useGeolocation();
@@ -40,10 +43,17 @@ const Dashboard = () => {
     }
   }, [selectedStation]);
 
-  const filteredStations = stations.filter(st => 
-    st.stationName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    st.address?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredStations = stations.filter(st => {
+    const matchesSearch = st.stationName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          st.address?.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    // Araç uyumluluk filtresi
+    const matchesVehicle = !selectedVehicle || 
+                          (st.supportedConnectorTypeIds && st.supportedConnectorTypeIds.includes(Number(selectedVehicle.connectorTypeId)));
+    
+    return matchesSearch && matchesVehicle;
+  });
+
 
   const recommendedStations = stations.slice(0, 4);
 
@@ -72,15 +82,31 @@ const Dashboard = () => {
       {/* Üst Panel */}
       <header className="dashboard-header">
         <div className="welcome-text">
-          <h1>Merhaba, <span className="text-gradient">{user?.name || 'Sürücü'}</span></h1>
+          <h1>Merhaba, <span className="text-gradient">{user?.firstName || 'Sürücü'}</span></h1>
           <p>Yolculuğun için enerji dolu bir gün dileriz.</p>
         </div>
+
         <div className="user-stats glass-panel">
           <div className="stat-item">
             <span className="stat-label">Cüzdan</span>
-            <span className="stat-value">0.00 TL</span>
+            <div style={{display: 'flex', alignItems: 'center', gap: '10px'}}>
+              <span className="stat-value">{user?.walletBalance ? user.walletBalance.toFixed(2) : '0.00'} TL</span>
+              <button 
+                className="btn-mini-primary" 
+                style={{padding: '4px 8px', fontSize: '0.8rem'}}
+                onClick={async () => {
+                  const amount = prompt("Yüklenecek tutarı girin (TL):");
+                  if (amount && !isNaN(amount) && Number(amount) > 0) {
+                    await addBalance(Number(amount));
+                  }
+                }}
+              >
+                + Yükle
+              </button>
+            </div>
           </div>
           <div className="stat-divider"></div>
+
           <div className="stat-item">
             <span className="stat-label">Aktif Rezervasyon</span>
             <span className="stat-value">Yok</span>
@@ -133,7 +159,14 @@ const Dashboard = () => {
           <div className="title-group">
             <h2>İstasyon Bul</h2>
             <p>Konumuna en yakın ve aracına uygun istasyonlar.</p>
+            {selectedVehicle && (
+              <div className="filter-badge-active">
+                <span>{selectedVehicle.brand} {selectedVehicle.model} için filtrelendi</span>
+                <button onClick={() => setSelectedVehicle(null)}>✕</button>
+              </div>
+            )}
           </div>
+
           <div className="controls-wrapper">
              <div className="search-box-modern">
                 <span className="search-icon-inside">🔍</span>

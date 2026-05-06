@@ -9,4 +9,17 @@ const api = axios.create({
   }
 });
 
+// Global Hata Yakalayıcı (Interceptor)
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.data && error.response.data.error) {
+      // Backend'den gelen düzenli hata mesajını fırlat
+      return Promise.reject(new Error(error.response.data.error));
+    }
+    return Promise.reject(error);
+  }
+);
+
 export default api;
+

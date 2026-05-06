@@ -6,6 +6,7 @@ export const UIProvider = ({ children }) => {
   const [showVehiclesModal, setShowVehiclesModal] = useState(false);
   const [showFavoritesModal, setShowFavoritesModal] = useState(false);
   const [selectedStation, setSelectedStation] = useState(null);
+  const [selectedVehicle, setSelectedVehicle] = useState(null);
 
   const closeAllModals = () => {
     setShowVehiclesModal(false);
@@ -17,8 +18,10 @@ export const UIProvider = ({ children }) => {
       showVehiclesModal, setShowVehiclesModal,
       showFavoritesModal, setShowFavoritesModal,
       selectedStation, setSelectedStation,
+      selectedVehicle, setSelectedVehicle,
       closeAllModals
     }}>
+
       {children}
     </UIContext.Provider>
   );

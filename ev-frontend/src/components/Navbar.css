@@ -158,4 +158,28 @@
   padding: 0.7rem;
 }
 
+.dropdown-item.clickable {
+  cursor: pointer;
+}
+
+.dropdown-item.selected {
+  background: rgba(16, 185, 129, 0.1) !important;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.selected-badge {
+  color: var(--primary);
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.item-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+
+
 

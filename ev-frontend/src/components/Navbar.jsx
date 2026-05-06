@@ -5,12 +5,15 @@ import { useUI } from '../context/UIContext';
 import './Navbar.css';
 
 const Navbar = () => {
-  const { isAuthenticated, logout, favorites, toggleFavorite, vehicles } = useAuth();
+  const { isAuthenticated, logout, favorites, toggleFavorite, vehicles, deleteVehicle } = useAuth();
+
   const { 
     showVehiclesModal, setShowVehiclesModal, 
     showFavoritesModal, setShowFavoritesModal,
-    setSelectedStation 
+    setSelectedStation,
+    selectedVehicle, setSelectedVehicle
   } = useUI();
+
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -45,18 +48,51 @@ const Navbar = () => {
                     <div className="dropdown-body">
                       {vehicles.length > 0 ? (
                         vehicles.map(v => (
-                          <div key={v.id} className="dropdown-item">
+                          <div 
+                            key={v.id} 
+                            className={`dropdown-item clickable ${selectedVehicle?.id === v.id ? 'selected' : ''}`}
+                            onClick={() => {
+                              setSelectedVehicle(selectedVehicle?.id === v.id ? null : v);
+                              setShowVehiclesModal(false);
+                            }}
+                          >
                             <div className="item-icon">🚗</div>
                             <div className="item-info">
                               <h4>{v.brand} {v.model}</h4>
                               <p>{v.plateNumber}</p>
                             </div>
+                            <div className="item-actions">
+                              {selectedVehicle?.id === v.id && <div className="selected-badge">✓</div>}
+                              <button 
+                                className="remove-btn-mini" 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  if(window.confirm(`${v.brand} ${v.model} aracını silmek istediğine emin misin?`)) {
+                                    deleteVehicle(v.id);
+                                    if(selectedVehicle?.id === v.id) setSelectedVehicle(null);
+                                  }
+                                }}
+                              >
+                                ✕
+                              </button>
+                            </div>
                           </div>
+
                         ))
                       ) : (
+
                         <div className="empty-dropdown">Henüz araç eklemediniz.</div>
                       )}
-                      <button className="btn-primary-new btn-full" onClick={() => navigate('/vehicles/add')}>+ Araç Ekle</button>
+                      <button 
+                        className="btn-primary-new btn-full" 
+                        onClick={() => {
+                          navigate('/vehicles/add');
+                          setShowVehiclesModal(false);
+                        }}
+                      >
+                        + Araç Ekle
+                      </button>
+
                     </div>
                   </div>
                 )}

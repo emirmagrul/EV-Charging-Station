@@ -3,6 +3,7 @@ import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
+import AddVehicle from './pages/AddVehicle';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { UIProvider } from './context/UIContext';
 
@@ -27,6 +28,14 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <Dashboard />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/vehicles/add" 
+                  element={
+                    <ProtectedRoute>
+                      <AddVehicle />
                     </ProtectedRoute>
                   } 
                 />

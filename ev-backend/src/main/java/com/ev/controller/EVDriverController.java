@@ -20,6 +20,12 @@ public class EVDriverController {
         return ResponseEntity.ok(evDriverService.createDriver(driverDto));
     }
 
+    @PostMapping("/login")
+    public ResponseEntity<EVDriverDto> login(@RequestBody EVDriverDto loginDto) {
+        return ResponseEntity.ok(evDriverService.login(loginDto.getEmail(), loginDto.getPassword()));
+    }
+
+
     @GetMapping("/{id}")
     public ResponseEntity<EVDriverDto> getProfile(@PathVariable Long id) {
         return ResponseEntity.ok(evDriverService.findById(id));

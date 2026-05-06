@@ -64,6 +64,17 @@ public class ChargingStationServiceImpl implements IChargingStationService {
         dto.setLongitude(s.getLongitude());
         dto.setOperatingHours(s.getOperatingHours());
         dto.setPricingPerKWh(s.getPricingPerKWh());
+        
+        if (s.getChargers() != null) {
+            List<Long> connectorIds = s.getChargers().stream()
+                    .filter(c -> c.getConnectorType() != null)
+                    .map(c -> c.getConnectorType().getId())
+                    .distinct()
+                    .collect(Collectors.toList());
+            dto.setSupportedConnectorTypeIds(connectorIds);
+        }
+        
         return dto;
+
     }
 }

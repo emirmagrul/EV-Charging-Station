@@ -30,6 +30,10 @@ public class EVDriver {
     @Column(name = "email", unique = true)
     private String email;
 
+    @Column(name = "password")
+    private String password;
+
+
     @Column(name = "wallet_balance")
     private BigDecimal walletBalance;
 

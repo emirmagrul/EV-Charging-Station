@@ -24,4 +24,11 @@ public class VehicleController {
     public ResponseEntity<List<VehicleDto>> getDriverVehicles(@PathVariable Long driverId) {
         return ResponseEntity.ok(vehicleService.findByDriverId(driverId));
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteVehicle(@PathVariable Long id) {
+        vehicleService.deleteById(id);
+        return ResponseEntity.ok().build();
+    }
 }
+

@@ -17,12 +17,8 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable()) // Geliştirme aşamasında kolaylık için CSRF kapalı
             .cors(Customizer.withDefaults()) // CorsConfig'deki ayarları kullan
             .authorizeHttpRequests(auth -> auth
-                // Misafirlerin görebileceği alanlara izin veriyoruz
-                .requestMatchers("/api/stations/**", "/api/map/**", "/api/chargers/**").permitAll()
-                // Diğer her şey (Rezervasyon vb.) giriş gerektirecek
-                .anyRequest().authenticated()
-            )
-            .formLogin(Customizer.withDefaults());
+                .anyRequest().permitAll()
+            );
 
         return http.build();
     }

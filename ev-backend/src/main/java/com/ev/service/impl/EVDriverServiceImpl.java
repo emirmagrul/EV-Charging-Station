@@ -25,17 +25,44 @@ public class EVDriverServiceImpl implements IEVDriverService {
     @Override
     @Transactional
     public EVDriverDto createDriver(EVDriverDto evDriverDto) {
+        // E-posta kontrolü
+        if (evDriverRepository.findByEmail(evDriverDto.getEmail()).isPresent()) {
+            throw new RuntimeException("Bu e-posta adresi zaten kullanımda!");
+        }
+
         EVDriver evDriver = new EVDriver();
         evDriver.setFirstName(evDriverDto.getFirstName());
         evDriver.setLastName(evDriverDto.getLastName());
         evDriver.setEmail(evDriverDto.getEmail());
+        evDriver.setPassword(evDriverDto.getPassword()); // Şifreyi kaydet
 
-        evDriver.setWalletBalance(evDriverDto.getWalletBalance() != null ?
-                                  evDriverDto.getWalletBalance() : BigDecimal.ZERO);
+        evDriver.setWalletBalance(
+                evDriverDto.getWalletBalance() != null ? evDriverDto.getWalletBalance() : BigDecimal.ZERO);
 
         EVDriver savedDriver = evDriverRepository.save(evDriver);
         evDriverDto.setId(savedDriver.getId());
+        evDriverDto.setPassword(null); // Geriye şifreyi dönme
         return evDriverDto;
+    }
+
+    @Override
+    public EVDriverDto login(String email, String password) {
+        EVDriver driver = evDriverRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("E-posta veya şifre hatalı!"));
+
+        // Şifre boşsa (eski kayıtlar için) veya eşleşmiyorsa hata ver
+        if (driver.getPassword() == null || !driver.getPassword().equals(password)) {
+            throw new RuntimeException("E-posta veya şifre hatalı!");
+        }
+
+        EVDriverDto dto = new EVDriverDto();
+
+        dto.setId(driver.getId());
+        dto.setFirstName(driver.getFirstName());
+        dto.setLastName(driver.getLastName());
+        dto.setEmail(driver.getEmail());
+        dto.setWalletBalance(driver.getWalletBalance());
+        return dto;
     }
 
     @Override
@@ -117,7 +144,16 @@ public class EVDriverServiceImpl implements IEVDriverService {
             dto.setId(s.getId());
             dto.setStationName(s.getStationName());
             dto.setAddress(s.getAddress());
+            dto.setLatitude(s.getLatitude());
+            dto.setLongitude(s.getLongitude());
+            
+            if (s.getResponsibleOperator() != null) {
+                // Eğer marka/operatör bilgisini dönmek istersen DTO'ya alan ekleyebilirsin
+                // Şimdilik sadece var olan alanları dönelim
+            }
             return dto;
         }).collect(Collectors.toList());
     }
+
+
 }

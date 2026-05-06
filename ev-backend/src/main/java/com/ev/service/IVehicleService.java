@@ -7,4 +7,6 @@ import java.util.List;
 public interface IVehicleService {
     VehicleDto registerVehicle(VehicleDto vehicleDto);
     List<VehicleDto> findByDriverId(Long driverId);
+    void deleteById(Long id);
 }
+

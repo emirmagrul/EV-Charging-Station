@@ -9,6 +9,8 @@ import java.util.List;
 public interface IEVDriverService {
     EVDriverDto createDriver(EVDriverDto evDriverDto);
 
+    EVDriverDto login(String email, String password);
+
     void addBalance(Long driverId, BigDecimal amount);
 
     void deductBalance(Long driverId, BigDecimal amount);

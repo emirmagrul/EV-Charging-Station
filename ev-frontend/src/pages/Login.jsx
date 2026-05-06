@@ -1,17 +1,20 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import authService from '../services/authService';
 import './Login.css';
 
 const Login = () => {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login: contextLogin } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
-  const [role, setRole] = useState('EV_DRIVER'); // Backend: EV_DRIVER, OPERATOR, ADMIN
+  const [role, setRole] = useState('EV_DRIVER'); 
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
     password: '',
-    name: '',
+    firstName: '',
+    lastName: '',
     confirmPassword: ''
   });
 
@@ -19,18 +22,35 @@ const Login = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(`${isLogin ? 'Giriş' : 'Kayıt'} yapılıyor:`, { ...formData, role });
-    
-    // Simüle edilmiş login işlemi
-    const mockUser = {
-      name: formData.name || formData.email.split('@')[0],
-      email: formData.email,
-      role: role
-    };
-    login(mockUser, 'mock-jwt-token');
-    navigate('/dashboard');
+    if (!isLogin && formData.password !== formData.confirmPassword) {
+      return alert("Şifreler eşleşmiyor!");
+    }
+
+    setLoading(true);
+    try {
+      if (isLogin) {
+        const userData = await authService.login(formData.email, formData.password);
+        contextLogin(userData, 'mock-jwt-token'); // Backend'e JWT eklenirse token buradan gelecek
+        alert(`Hoş geldin, ${userData.firstName}!`);
+        navigate('/dashboard');
+      } else {
+        const registerData = {
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          password: formData.password
+        };
+        const userData = await authService.register(registerData);
+        alert("Kayıt başarılı! Şimdi giriş yapabilirsiniz.");
+        setIsLogin(true);
+      }
+    } catch (error) {
+      alert(error.message || "Giriş veya kayıt başarısız. Lütfen bilgilerinizi kontrol edin.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -42,88 +62,52 @@ const Login = () => {
         </div>
 
         <div className="role-selector">
-          <button 
-            className={role === 'EV_DRIVER' ? 'active' : ''} 
-            onClick={() => setRole('EV_DRIVER')}
-          >
-            Kullanıcı
-          </button>
-          <button 
-            className={role === 'OPERATOR' ? 'active' : ''} 
-            onClick={() => setRole('OPERATOR')}
-          >
-            Operatör
-          </button>
-          <button 
-            className={role === 'ADMIN' ? 'active' : ''} 
-            onClick={() => setRole('ADMIN')}
-          >
-            Admin
-          </button>
+          <button className={role === 'EV_DRIVER' ? 'active' : ''} onClick={() => setRole('EV_DRIVER')}>Kullanıcı</button>
+          <button className={role === 'OPERATOR' ? 'active' : ''} onClick={() => setRole('OPERATOR')}>Operatör</button>
+          <button className={role === 'ADMIN' ? 'active' : ''} onClick={() => setRole('ADMIN')}>Admin</button>
         </div>
 
         <form className="login-form" onSubmit={handleSubmit}>
           {!isLogin && (
-            <div className="form-group">
-              <label>Ad Soyad</label>
-              <input 
-                type="text" 
-                name="name" 
-                placeholder="Adınızı giriniz" 
-                value={formData.name}
-                onChange={handleChange}
-                required 
-              />
+            <div className="form-row">
+              <div className="form-group">
+                <label>Ad</label>
+                <input type="text" name="firstName" placeholder="Ad" value={formData.firstName} onChange={handleChange} required />
+              </div>
+              <div className="form-group">
+                <label>Soyad</label>
+                <input type="text" name="lastName" placeholder="Soyad" value={formData.lastName} onChange={handleChange} required />
+              </div>
             </div>
           )}
 
+
           <div className="form-group">
             <label>E-posta</label>
-            <input 
-              type="email" 
-              name="email" 
-              placeholder="E-posta adresiniz" 
-              value={formData.email}
-              onChange={handleChange}
-              required 
-            />
+            <input type="email" name="email" placeholder="E-posta" value={formData.email} onChange={handleChange} required />
           </div>
 
           <div className="form-group">
             <label>Şifre</label>
-            <input 
-              type="password" 
-              name="password" 
-              placeholder="••••••••" 
-              value={formData.password}
-              onChange={handleChange}
-              required 
-            />
+            <input type="password" name="password" placeholder="••••••••" value={formData.password} onChange={handleChange} required />
           </div>
 
           {!isLogin && (
             <div className="form-group">
               <label>Şifre Tekrar</label>
-              <input 
-                type="password" 
-                name="confirmPassword" 
-                placeholder="••••••••" 
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                required 
-              />
+              <input type="password" name="confirmPassword" placeholder="••••••••" value={formData.confirmPassword} onChange={handleChange} required />
             </div>
           )}
 
-          <button type="submit" className="btn-primary-new login-submit">
-            {isLogin ? 'Giriş Yap' : 'Kayıt Ol'}
+          <button type="submit" className="btn-primary-new login-submit" disabled={loading}>
+            {loading ? 'İşlem yapılıyor...' : (isLogin ? 'Giriş Yap' : 'Kayıt Ol')}
           </button>
         </form>
 
         <div className="login-footer">
           <p>
             {isLogin ? 'Henüz hesabın yok mu?' : 'Zaten hesabın var mı?'}
-            <span onClick={() => setIsLogin(!isLogin)}>
+            <span onClick={() => setIsLogin(!isLogin)} style={{cursor: 'pointer', color: 'var(--primary)', marginLeft: '5px'}}>
               {isLogin ? ' Kayıt Ol' : ' Giriş Yap'}
             </span>
           </p>

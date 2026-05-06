@@ -27,7 +27,12 @@ public class VehicleServiceImpl implements IVehicleService {
     @Override
     @Transactional
     public VehicleDto registerVehicle(VehicleDto vehicleDto) {
+        if (vehicleRepository.existsByPlateNumber(vehicleDto.getPlateNumber())) {
+            throw new RuntimeException("Bu plakaya ait bir araç zaten kayıtlı!");
+        }
+        
         Vehicle vehicle = new Vehicle();
+
         vehicle.setBrand(vehicleDto.getBrand());
         vehicle.setModel(vehicleDto.getModel());
         vehicle.setBatteryCapacity(vehicleDto.getBatteryCapacity());
@@ -67,4 +72,11 @@ public class VehicleServiceImpl implements IVehicleService {
             return dto;
         }).collect(Collectors.toList());
     }
+
+    @Override
+    @Transactional
+    public void deleteById(Long id) {
+        vehicleRepository.deleteById(id);
+    }
 }
+

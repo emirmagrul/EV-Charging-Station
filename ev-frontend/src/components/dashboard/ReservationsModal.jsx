@@ -8,7 +8,6 @@ const ReservationsModal = ({ isOpen, onClose, reservations, setAllReservations, 
   const [reportingRes, setReportingRes] = useState(null); // Geri bildirim verilen rezervasyon
   const [reportDesc, setReportDesc] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [reportedResIds, setReportedResIds] = useState(new Set());
 
   if (!isOpen) return null;
 
@@ -35,13 +34,14 @@ const ReservationsModal = ({ isOpen, onClose, reservations, setAllReservations, 
     try {
       await operatorService.createFaultReport({
         chargerId: reportingRes.chargerId,
+        reservationId: reportingRes.id,
         description: reportDesc,
         priority: 'MEDIUM',
         driverId: reportingRes.driverId || reportingRes.userId
       });
       
-      // Bu rezervasyonun raporlandığını kaydet
-      setReportedResIds(prev => new Set(prev).add(reportingRes.id));
+      // Local state güncellemesi (UI'da anlık kapansın diye)
+      setAllReservations(prev => prev.map(r => r.id === reportingRes.id ? { ...r, reported: true } : r));
       
       alert("Geri bildiriminiz başarıyla iletildi. Teşekkür ederiz!");
       setReportingRes(null);
@@ -138,22 +138,22 @@ const ReservationsModal = ({ isOpen, onClose, reservations, setAllReservations, 
 
                   {isCompleted && (
                     <button
-                      onClick={() => !reportedResIds.has(res.id) && setReportingRes(res)}
-                      disabled={reportedResIds.has(res.id)}
+                      onClick={() => !res.reported && setReportingRes(res)}
+                      disabled={res.reported}
                       style={{
                         marginTop: '10px', width: '100%', padding: '10px',
-                        background: reportedResIds.has(res.id) ? 'rgba(16,185,129,0.1)' : 'rgba(139,92,246,0.15)', 
-                        border: reportedResIds.has(res.id) ? '1px solid rgba(16,185,129,0.3)' : '1px solid rgba(139,92,246,0.4)',
+                        background: res.reported ? 'rgba(16,185,129,0.1)' : 'rgba(139,92,246,0.15)', 
+                        border: res.reported ? '1px solid rgba(16,185,129,0.3)' : '1px solid rgba(139,92,246,0.4)',
                         borderRadius: '10px', 
-                        color: reportedResIds.has(res.id) ? 'var(--success)' : 'var(--accent)', 
-                        cursor: reportedResIds.has(res.id) ? 'default' : 'pointer', 
+                        color: res.reported ? 'var(--success)' : 'var(--accent)', 
+                        cursor: res.reported ? 'default' : 'pointer', 
                         fontSize: '0.85rem',
                         fontWeight: '700',
                         transition: 'all 0.3s ease',
                         display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px'
                       }}
                     >
-                      {reportedResIds.has(res.id) ? (
+                      {res.reported ? (
                         <>✅ Geri Bildirim İletildi</>
                       ) : (
                         <>💬 Geri Bildirim Ver / Sorun Bildir</>

@@ -40,9 +40,9 @@ public class ReservationController {
 
     // Rezervasyonu iptal et ve ücret iadesi yap
     @PostMapping("/{id}/cancel")
-    public ResponseEntity<String> cancelReservation(@PathVariable Long id) {
-        reservationService.cancelReservation(id);
-        return ResponseEntity.ok("Rezervasyon iptal edildi, ücret cüzdanınıza iade edildi.");
+    public ResponseEntity<String> cancelReservation(@PathVariable Long id, @RequestParam(required = false) String reason) {
+        reservationService.cancelReservation(id, reason);
+        return ResponseEntity.ok("Rezervasyon iptal edildi.");
     }
 
     //Sürücünün kendi rezervasyon geçmişini görmesi

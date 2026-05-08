@@ -20,10 +20,17 @@ const Reservation = () => {
   const [selectedCharger, setSelectedCharger] = useState(null);
   
   // Date format: YYYY-MM-DD
-  const today = new Date().toISOString().split('T')[0];
+  const getLocalDateString = (date) => {
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  const today = getLocalDateString(new Date());
   const tomorrowObj = new Date();
   tomorrowObj.setDate(tomorrowObj.getDate() + 1);
-  const tomorrow = tomorrowObj.toISOString().split('T')[0];
+  const tomorrow = getLocalDateString(tomorrowObj);
 
   const [selectedDate, setSelectedDate] = useState(today);
   const [bookedSlots, setBookedSlots] = useState([]);

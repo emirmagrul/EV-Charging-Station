@@ -8,6 +8,7 @@ import Reservation from './pages/Reservation';
 import OperatorDashboard from './pages/OperatorDashboard';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { UIProvider } from './context/UIContext';
+import { NotificationProvider } from './context/NotificationContext';
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated } = useAuth();
@@ -18,9 +19,10 @@ function App() {
   return (
     <AuthProvider>
       <UIProvider>
-        <Router>
-          <div className="app">
-            <Navbar />
+        <NotificationProvider>
+          <Router>
+            <div className="app">
+              <Navbar />
             <main>
               <Routes>
                 <Route path="/" element={<Home />} />
@@ -62,6 +64,7 @@ function App() {
 
           </div>
         </Router>
+        </NotificationProvider>
       </UIProvider>
     </AuthProvider>
   );

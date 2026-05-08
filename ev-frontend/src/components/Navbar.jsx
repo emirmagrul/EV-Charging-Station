@@ -2,6 +2,7 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useUI } from '../context/UIContext';
+import NotificationBell from './notifications/NotificationBell';
 import './Navbar.css';
 
 const Navbar = () => {
@@ -149,6 +150,7 @@ const Navbar = () => {
                 </>
               )}
 
+              <NotificationBell />
               <button className="btn-outline-mini" onClick={handleLogout}>Çıkış</button>
             </>
           ) : (

@@ -41,6 +41,10 @@ public class IssueReport {
     @JoinColumn(name = "charger_id")
     private Charger targetCharger; // Arızalı olan cihaz
 
+    @OneToOne
+    @JoinColumn(name = "reservation_id", unique = true)
+    private Reservation relatedReservation; // Hangi rezervasyon ile ilgili (Opsiyonel)
+
     @PrePersist
     protected void onCreate() {
         reportedAt = LocalDateTime.now();

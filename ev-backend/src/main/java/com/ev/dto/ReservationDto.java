@@ -22,4 +22,5 @@ public class ReservationDto {
     private Long chargerId;
     private String stationName;
     private String driverName;
+    private boolean reported;
 }

@@ -17,4 +17,5 @@ public class IssueReportDto {
     private String chargerPower;
     private String stationName;
     private String reporterName;
+    private Long reservationId;
 }

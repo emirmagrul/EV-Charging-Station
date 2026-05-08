@@ -10,6 +10,7 @@ import com.ev.repository.ChargingStationRepository;
 import com.ev.repository.ConnectorTypeRepository;
 import com.ev.repository.ReservationRepository;
 import com.ev.service.IChargerService;
+import com.ev.service.INotificationService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +29,7 @@ public class ChargerServiceImpl implements IChargerService {
     private final ChargingStationRepository stationRepository;
     private final ConnectorTypeRepository connectorTypeRepository;
     private final ReservationRepository reservationRepository;
+    private final INotificationService notificationService;
 
     @Override
     @Transactional
@@ -108,6 +110,16 @@ public class ChargerServiceImpl implements IChargerService {
 
                     res.setStatus(ReservationStatus.CANCELLED_BY_OPERATOR);
                     reservationRepository.save(res);
+
+                    // Bildirim Gönder
+                    notificationService.sendNotification(
+                        res.getDriver().getId(),
+                        "Rezervasyon İptali",
+                        String.format("%s istasyonundaki %s tarihli rezervasyonunuz, istasyonun bakıma alınması nedeniyle iptal edilmiştir.", 
+                            res.getCharger().getStation().getStationName(), res.getReservationDate()),
+                        com.ev.model.enums.NotificationType.RESERVATION_CANCELLED
+                    );
+
                     log.info("Cihaz devre dışı: Sürücü {} için rezervasyon {} iptal edildi.",
                             res.getDriver().getEmail(), res.getId());
                 }

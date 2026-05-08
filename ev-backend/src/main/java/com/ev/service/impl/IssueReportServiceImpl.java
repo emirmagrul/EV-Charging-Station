@@ -10,8 +10,10 @@ import com.ev.model.enums.ReportStatus;
 import com.ev.repository.ChargerRepository;
 import com.ev.repository.EVDriverRepository;
 import com.ev.repository.IssueReportRepository;
+import com.ev.repository.ReservationRepository;
 import com.ev.repository.StationOperatorRepository;
 import com.ev.service.IChargerService;
+import com.ev.service.INotificationService;
 import com.ev.service.IIssueReportService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +24,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@lombok.extern.slf4j.Slf4j
 public class IssueReportServiceImpl implements IIssueReportService {
 
     private final IssueReportRepository issueReportRepository;
@@ -29,6 +32,8 @@ public class IssueReportServiceImpl implements IIssueReportService {
     private final EVDriverRepository evDriverRepository;
     private final StationOperatorRepository stationOperatorRepository;
     private final IChargerService chargerService;
+    private final INotificationService notificationService;
+    private final ReservationRepository reservationRepository;
 
 
     @Override
@@ -64,7 +69,28 @@ public class IssueReportServiceImpl implements IIssueReportService {
                 .orElseThrow(() -> new RuntimeException("Cihaz bulunamadı!"));
         report.setTargetCharger(charger);
 
+        // Rezervasyon bağlantısı
+        if (issueReportDto.getReservationId() != null) {
+            reservationRepository.findById(issueReportDto.getReservationId()).ifPresent(report::setRelatedReservation);
+        }
+
         IssueReport saved = issueReportRepository.save(report);
+
+        // Operatöre Bildirim Gönder (Eğer istasyonun bir operatörü varsa)
+        if (charger.getStation().getResponsibleOperator() != null) {
+            Long opId = charger.getStation().getResponsibleOperator().getId();
+            log.info("Operatöre bildirim gönderiliyor. OperatorID: {}, Station: {}", opId, charger.getStation().getStationName());
+            notificationService.sendOperatorNotification(
+                opId,
+                "Yeni Arıza Bildirimi",
+                String.format("%s istasyonundaki %s ünitesi için yeni bir arıza bildirildi: %s", 
+                    charger.getStation().getStationName(), charger.getId(), report.getDescription()),
+                com.ev.model.enums.NotificationType.SYSTEM_ALERT
+            );
+        } else {
+            log.warn("İstasyonun sorumlu operatörü bulunamadı! Bildirim gönderilemedi. Station: {}", charger.getStation().getStationName());
+        }
+
         issueReportDto.setId(saved.getId());
         issueReportDto.setReportedAt(saved.getReportedAt());
         issueReportDto.setStatus(saved.getStatus());

@@ -9,8 +9,10 @@ import com.ev.model.enums.ReservationStatus;
 import com.ev.repository.ChargerRepository;
 import com.ev.repository.EVDriverRepository;
 import com.ev.repository.ReservationRepository;
+import com.ev.repository.IssueReportRepository;
 import com.ev.repository.VehicleRepository;
 import com.ev.service.IEVDriverService;
+import com.ev.service.INotificationService;
 import com.ev.service.IReservationService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +36,8 @@ public class ReservationServiceImpl implements IReservationService {
     private final ChargerRepository chargerRepository;
     private final VehicleRepository vehicleRepository;
     private final IEVDriverService evDriverService;
+    private final INotificationService notificationService;
+    private final IssueReportRepository issueReportRepository;
 
     @Override
     @Transactional
@@ -125,7 +129,7 @@ public class ReservationServiceImpl implements IReservationService {
 
     @Override
     @Transactional
-    public void cancelReservation(Long reservationId) {
+    public void cancelReservation(Long reservationId, String reason) {
         Reservation res = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new RuntimeException("Rezervasyon bulunamadı"));
 
@@ -144,7 +148,28 @@ public class ReservationServiceImpl implements IReservationService {
             evDriverService.addBalance(res.getDriver().getId(), prepaidAmount);
         }
 
-        res.setStatus(ReservationStatus.CANCELLED);
+        if (reason != null && !reason.isEmpty()) {
+            res.setStatus(ReservationStatus.CANCELLED_BY_OPERATOR);
+            // Bildirim Gönder
+            notificationService.sendNotification(
+                res.getDriver().getId(),
+                "Rezervasyonunuz İptal Edildi",
+                String.format("%s istasyonundaki %s tarihli rezervasyonunuz operatör tarafından iptal edilmiştir. Gerekçe: %s", 
+                    res.getCharger().getStation().getStationName(), res.getReservationDate(), reason),
+                com.ev.model.enums.NotificationType.RESERVATION_CANCELLED
+            );
+        } else {
+            res.setStatus(ReservationStatus.CANCELLED);
+            // Sürücü kendisi iptal ettiyse de bildirim gönderilebilir (isteğe bağlı)
+            notificationService.sendNotification(
+                res.getDriver().getId(),
+                "Rezervasyon İptali",
+                String.format("%s istasyonundaki %s tarihli rezervasyonunuz iptal edilmiştir.", 
+                    res.getCharger().getStation().getStationName(), res.getReservationDate()),
+                com.ev.model.enums.NotificationType.RESERVATION_CANCELLED
+            );
+        }
+        
         reservationRepository.save(res);
     }
 
@@ -212,6 +237,9 @@ public class ReservationServiceImpl implements IReservationService {
         if (res.getCharger() != null && res.getCharger().getStation() != null) {
             dto.setStationName(res.getCharger().getStation().getStationName());
         }
+
+        // Bu rezervasyon için geri bildirim yapılmış mı?
+        dto.setReported(issueReportRepository.existsByRelatedReservationId(res.getId()));
 
         return dto;
     }

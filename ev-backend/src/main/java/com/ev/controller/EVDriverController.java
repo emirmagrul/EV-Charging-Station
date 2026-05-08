@@ -1,8 +1,11 @@
 package com.ev.controller;
 
 import com.ev.dto.EVDriverDto;
+import com.ev.dto.StationOperatorDto;
 import com.ev.service.IEVDriverService;
+import com.ev.service.IStationOperatorService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,12 +14,38 @@ import java.math.BigDecimal;
 @RestController
 @RequestMapping("/api/drivers")
 @RequiredArgsConstructor
+@Slf4j
 public class EVDriverController {
 
     private final IEVDriverService evDriverService;
+    private final IStationOperatorService operatorService;
 
     @PostMapping("/register")
     public ResponseEntity<EVDriverDto> register(@RequestBody EVDriverDto driverDto) {
+        log.info("Kayıt isteği alındı: Email={}, Rol={}", driverDto.getEmail(), driverDto.getRole());
+        
+        if (com.ev.model.enums.UserRole.OPERATOR.equals(driverDto.getRole())) {
+            log.info("Operatör kaydı işleniyor...");
+            StationOperatorDto operatorDto = new StationOperatorDto();
+            operatorDto.setFirstName(driverDto.getFirstName());
+            operatorDto.setLastName(driverDto.getLastName());
+            operatorDto.setEmail(driverDto.getEmail());
+            operatorDto.setPassword(driverDto.getPassword());
+            operatorDto.setRole(com.ev.model.enums.UserRole.OPERATOR);
+            
+            StationOperatorDto saved = operatorService.save(operatorDto);
+            log.info("Operatör başarıyla kaydedildi: ID={}", saved.getId());
+            
+            EVDriverDto response = new EVDriverDto();
+            response.setId(saved.getId());
+            response.setFirstName(saved.getFirstName());
+            response.setLastName(saved.getLastName());
+            response.setEmail(saved.getEmail());
+            response.setRole(com.ev.model.enums.UserRole.OPERATOR);
+            return ResponseEntity.ok(response);
+        }
+        
+        log.info("Sürücü kaydı işleniyor...");
         return ResponseEntity.ok(evDriverService.createDriver(driverDto));
     }
 

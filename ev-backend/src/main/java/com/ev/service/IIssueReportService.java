@@ -8,5 +8,8 @@ import java.util.List;
 public interface IIssueReportService {
     IssueReportDto reportIssue(IssueReportDto issueReportDto);
     void updateReportStatus(Long reportId, ReportStatus newStatus);
+    List<IssueReportDto> findAll();
+    IssueReportDto findById(Long id);
     List<IssueReportDto> getReportsByStation(Long stationId);
+    List<IssueReportDto> findByChargerId(Long chargerId);
 }

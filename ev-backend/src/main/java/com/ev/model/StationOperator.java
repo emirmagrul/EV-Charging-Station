@@ -1,5 +1,6 @@
 package com.ev.model;
 
+import com.ev.model.enums.UserRole;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -27,6 +28,13 @@ public class StationOperator {
 
     @Column(name = "email", unique = true)
     private String email;
+
+    @Column(name = "password")
+    private String password;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role")
+    private UserRole role = UserRole.OPERATOR;
 
     @OneToMany(mappedBy = "responsibleOperator")
     @ToString.Exclude

@@ -10,5 +10,7 @@ public interface IReservationService {
     void cancelReservation(Long reservationId);
     List<ReservationDto> getMyReservations(Long driverId);
     List<ReservationDto> getBookedSlots(Long chargerId, java.time.LocalDate date);
+    List<ReservationDto> findAll();
+    List<ReservationDto> getByChargerId(Long chargerId);
 }
 

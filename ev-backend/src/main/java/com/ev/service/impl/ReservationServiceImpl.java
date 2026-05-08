@@ -161,23 +161,9 @@ public class ReservationServiceImpl implements IReservationService {
     @Override
     @Transactional
     public List<ReservationDto> getMyReservations(Long driverId) {
-        return reservationRepository.findByDriverId(driverId).stream().map(res -> {
-            ReservationDto dto = new ReservationDto();
-            dto.setId(res.getId());
-            dto.setReservationDate(res.getReservationDate());
-            dto.setStartTime(res.getStartTime());
-            dto.setEndTime(res.getEndTime());
-            dto.setStatus(res.getStatus());
-            dto.setDriverId(res.getDriver().getId());
-            dto.setChargerId(res.getCharger().getId());
-
-            // Reservation -> Charger -> ChargingStation -> stationName
-            if (res.getCharger() != null && res.getCharger().getStation() != null) {
-                dto.setStationName(res.getCharger().getStation().getStationName());
-            }
-
-            return dto;
-        }).collect(Collectors.toList());
+        return reservationRepository.findByDriverId(driverId).stream()
+                .map(this::mapToDto)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -194,5 +180,39 @@ public class ReservationServiceImpl implements IReservationService {
             dto.setStatus(res.getStatus());
             return dto;
         }).collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public List<ReservationDto> findAll() {
+        return reservationRepository.findAll().stream()
+                .map(this::mapToDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public List<ReservationDto> getByChargerId(Long chargerId) {
+        return reservationRepository.findByChargerId(chargerId).stream()
+                .map(this::mapToDto)
+                .collect(Collectors.toList());
+    }
+
+    private ReservationDto mapToDto(Reservation res) {
+        ReservationDto dto = new ReservationDto();
+        dto.setId(res.getId());
+        dto.setReservationDate(res.getReservationDate());
+        dto.setStartTime(res.getStartTime());
+        dto.setEndTime(res.getEndTime());
+        dto.setStatus(res.getStatus());
+        dto.setDriverId(res.getDriver().getId());
+        dto.setDriverName(res.getDriver().getFirstName() + " " + res.getDriver().getLastName());
+        dto.setChargerId(res.getCharger().getId());
+
+        if (res.getCharger() != null && res.getCharger().getStation() != null) {
+            dto.setStationName(res.getCharger().getStation().getStationName());
+        }
+
+        return dto;
     }
 }

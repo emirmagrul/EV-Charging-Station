@@ -9,6 +9,7 @@ import com.ev.repository.StationOperatorRepository;
 import com.ev.service.IChargingStationService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,6 +17,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ChargingStationServiceImpl implements IChargingStationService {
 
     private final ChargingStationRepository stationRepository;
@@ -46,6 +48,20 @@ public class ChargingStationServiceImpl implements IChargingStationService {
     @Transactional
     public List<ChargingStationDto> findAll() {
         return stationRepository.findAll().stream().map(s -> {
+            return getChargingStationDto(s);
+        }).collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public List<ChargingStationDto> findByOperatorId(Long operatorId) {
+        log.info("Operatör ID {} için istasyonlar aranıyor...", operatorId);
+        List<ChargingStation> stations = stationRepository.findByResponsibleOperatorId(operatorId);
+        log.info("Bulunan istasyon sayısı: {}", stations.size());
+        
+        stations.forEach(s -> log.info("Bulunan İstasyon: ID={}, Name={}", s.getId(), s.getStationName()));
+        
+        return stations.stream().map(s -> {
             return getChargingStationDto(s);
         }).collect(Collectors.toList());
     }

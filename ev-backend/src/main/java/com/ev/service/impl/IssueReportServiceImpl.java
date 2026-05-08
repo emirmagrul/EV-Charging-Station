@@ -4,11 +4,13 @@ import com.ev.dto.IssueReportDto;
 import com.ev.model.Charger;
 import com.ev.model.EVDriver;
 import com.ev.model.IssueReport;
+import com.ev.model.StationOperator;
 import com.ev.model.enums.ChargerStatus;
 import com.ev.model.enums.ReportStatus;
 import com.ev.repository.ChargerRepository;
 import com.ev.repository.EVDriverRepository;
 import com.ev.repository.IssueReportRepository;
+import com.ev.repository.StationOperatorRepository;
 import com.ev.service.IChargerService;
 import com.ev.service.IIssueReportService;
 import jakarta.transaction.Transactional;
@@ -25,24 +27,44 @@ public class IssueReportServiceImpl implements IIssueReportService {
     private final IssueReportRepository issueReportRepository;
     private final ChargerRepository chargerRepository;
     private final EVDriverRepository evDriverRepository;
+    private final StationOperatorRepository stationOperatorRepository;
     private final IChargerService chargerService;
 
 
     @Override
     @Transactional
     public IssueReportDto reportIssue(IssueReportDto issueReportDto) {
+        System.out.println("Arıza Raporu Alındı: " + issueReportDto);
+        
+        if (issueReportDto.getChargerId() == null) {
+            throw new RuntimeException("Cihaz ID bilgisi boş olamaz!");
+        }
+
         IssueReport report = new IssueReport();
         report.setDescription(issueReportDto.getDescription());
 
-        EVDriver driver = evDriverRepository.findById(issueReportDto.getDriverId())
-                .orElseThrow(() -> new RuntimeException("Sürücü bulunamadı!"));
-        report.setReporter(driver);
+        // Sürücü veya Operatör tespiti
+        if (issueReportDto.getDriverId() != null) {
+            evDriverRepository.findById(issueReportDto.getDriverId()).ifPresent(report::setReporter);
+        }
+        
+        if (issueReportDto.getOperatorId() != null) {
+            stationOperatorRepository.findById(issueReportDto.getOperatorId()).ifPresent(report::setOperatorReporter);
+        }
+
+        // Eğer ikisi de yoksa ve bir ID geldiyse (Fallback: Operatör olarak aramayı dene)
+        if (report.getReporter() == null && report.getOperatorReporter() == null) {
+            Long potentialId = issueReportDto.getDriverId() != null ? issueReportDto.getDriverId() : issueReportDto.getOperatorId();
+            if (potentialId != null) {
+                 stationOperatorRepository.findById(potentialId).ifPresent(report::setOperatorReporter);
+            }
+        }
 
         Charger charger = chargerRepository.findById(issueReportDto.getChargerId())
                 .orElseThrow(() -> new RuntimeException("Cihaz bulunamadı!"));
         report.setTargetCharger(charger);
 
-        IssueReport  saved = issueReportRepository.save(report);
+        IssueReport saved = issueReportRepository.save(report);
         issueReportDto.setId(saved.getId());
         issueReportDto.setReportedAt(saved.getReportedAt());
         issueReportDto.setStatus(saved.getStatus());
@@ -71,22 +93,59 @@ public class IssueReportServiceImpl implements IIssueReportService {
 
     @Override
     @Transactional
+    public List<IssueReportDto> findAll() {
+        return issueReportRepository.findAll().stream()
+                .map(this::mapToDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public IssueReportDto findById(Long id) {
+        return issueReportRepository.findById(id)
+                .map(this::mapToDto)
+                .orElseThrow(() -> new RuntimeException("Rapor bulunamadı!"));
+    }
+
+    @Override
+    @Transactional
     public List<IssueReportDto> getReportsByStation(Long stationId) {
         return issueReportRepository.findByTargetChargerStationId(stationId).stream()
-                .map(report -> {
-                    IssueReportDto dto = new IssueReportDto();
-                    dto.setId(report.getId());
-                    dto.setDescription(report.getDescription());
-                    dto.setReportedAt(report.getReportedAt());
-                    dto.setStatus(report.getStatus());
-                    dto.setDriverId(report.getReporter().getId());
-                    dto.setChargerId(report.getTargetCharger().getId());
+                .map(this::mapToDto).collect(Collectors.toList());
+    }
 
-                    // UI tarafında kolaylık için istasyon ve cihaz bilgisini de ekleyelim
-                    dto.setStationName(report.getTargetCharger().getStation().getStationName());
-                    dto.setChargerPower(report.getTargetCharger().getPowerOutput() + "kW");
+    @Override
+    @Transactional
+    public List<IssueReportDto> findByChargerId(Long chargerId) {
+        return issueReportRepository.findByTargetChargerId(chargerId).stream()
+                .map(this::mapToDto).collect(Collectors.toList());
+    }
 
-                    return dto;
-                }).collect(Collectors.toList());
+    private IssueReportDto mapToDto(IssueReport report) {
+        IssueReportDto dto = new IssueReportDto();
+        dto.setId(report.getId());
+        dto.setDescription(report.getDescription());
+        dto.setReportedAt(report.getReportedAt());
+        dto.setStatus(report.getStatus());
+        dto.setDriverId(report.getReporter() != null ? report.getReporter().getId() : null);
+        dto.setOperatorId(report.getOperatorReporter() != null ? report.getOperatorReporter().getId() : null);
+        
+        if (report.getReporter() != null) {
+            dto.setReporterName(report.getReporter().getFirstName() + " " + report.getReporter().getLastName());
+        } else if (report.getOperatorReporter() != null) {
+            dto.setReporterName(report.getOperatorReporter().getFirstName() + " " + report.getOperatorReporter().getLastName() + " (Operatör)");
+        } else {
+            dto.setReporterName("Bilinmeyen");
+        }
+        
+        dto.setChargerId(report.getTargetCharger().getId());
+
+        // UI tarafında kolaylık için istasyon ve cihaz bilgisini de ekleyelim
+        if (report.getTargetCharger().getStation() != null) {
+            dto.setStationName(report.getTargetCharger().getStation().getStationName());
+        }
+        dto.setChargerPower(report.getTargetCharger().getPowerOutput() + "kW");
+
+        return dto;
     }
 }

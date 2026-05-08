@@ -31,7 +31,11 @@ public class IssueReport {
 
     @ManyToOne
     @JoinColumn(name = "driver_id")
-    private EVDriver reporter; // Sorunu bildiren sürücü
+    private EVDriver reporter; // Sorunu bildiren sürücü (Opsiyonel)
+
+    @ManyToOne
+    @JoinColumn(name = "operator_id")
+    private StationOperator operatorReporter; // Sorunu bildiren operatör (Opsiyonel)
 
     @ManyToOne
     @JoinColumn(name = "charger_id")
@@ -41,7 +45,7 @@ public class IssueReport {
     protected void onCreate() {
         reportedAt = LocalDateTime.now();
         if (status == null) {
-            status = ReportStatus.PENDING;
+            status = ReportStatus.OPEN;
         }
     }
 }

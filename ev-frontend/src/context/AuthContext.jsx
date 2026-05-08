@@ -5,21 +5,35 @@ import api from '../services/api'; // Favorileri çekmek için direkt API kullan
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState(() => {
+    const savedUser = localStorage.getItem('user');
+    try {
+      return (savedUser && savedUser !== 'undefined' && savedUser !== 'null') ? JSON.parse(savedUser) : null;
+    } catch (e) {
+      return null;
+    }
+  });
+
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    const token = localStorage.getItem('token');
+    const savedUser = localStorage.getItem('user');
+    return !!(token && token !== 'undefined' && token !== 'null' && savedUser && savedUser !== 'undefined' && savedUser !== 'null');
+  });
   
   const [favorites, setFavorites] = useState([]);
   const [vehicles, setVehicles] = useState([]);
 
   // Kullanıcıya özel verileri yükle
-  const loadUserData = async (userId) => {
+  const loadUserData = async (userData) => {
+    if (!userData) return;
+    
     try {
       // Araçları getir
-      const vehicleData = await vehicleService.getDriverVehicles(userId);
+      const vehicleData = await vehicleService.getDriverVehicles(userData.id);
       setVehicles(vehicleData);
 
       // Favorileri backend'den getir
-      const favResponse = await api.get(`/drivers/${userId}/favorites`);
+      const favResponse = await api.get(`/drivers/${userData.id}/favorites`);
       setFavorites(favResponse.data);
     } catch (err) {
       console.error("Kullanıcı verileri yüklenemedi:", err);
@@ -27,14 +41,8 @@ export const AuthProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    const savedUser = localStorage.getItem('user');
-    
-    if (token && savedUser) {
-      const parsedUser = JSON.parse(savedUser);
-      setUser(parsedUser);
-      setIsAuthenticated(true);
-      loadUserData(parsedUser.id);
+    if (isAuthenticated && user) {
+      loadUserData(user);
     }
   }, []);
 
@@ -45,7 +53,7 @@ export const AuthProvider = ({ children }) => {
     setIsAuthenticated(true);
     
     // Login sonrası sadece o kullanıcıya ait verileri yükle
-    loadUserData(userData.id);
+    loadUserData(userData);
   };
 
   const logout = () => {

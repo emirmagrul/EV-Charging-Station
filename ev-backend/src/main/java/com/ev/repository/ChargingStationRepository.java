@@ -8,5 +8,6 @@ import java.util.List;
 
 @Repository
 public interface ChargingStationRepository extends JpaRepository<ChargingStation, Long> {
-    List<ChargingStation> findByStationNameContainingIgnoreCase(String name); // İstasyon arama [cite: 98]
+    @org.springframework.data.jpa.repository.Query("SELECT s FROM ChargingStation s WHERE s.responsibleOperator.id = :operatorId")
+    List<ChargingStation> findByResponsibleOperatorId(@org.springframework.data.repository.query.Param("operatorId") Long operatorId);
 }

@@ -15,6 +15,8 @@ import java.util.List;
 @Repository
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
     List<Reservation> findByDriverId(Long driverId); // Sürücünün geçmişi [cite: 114]
+    List<Reservation> findByChargerId(Long chargerId);
+
 
     // R11: Aynı şarj ünitesi ve zaman dilimi için çakışma kontrolü sorgusu [cite: 104]
     @Query("SELECT COUNT(r) > 0 FROM Reservation r " +

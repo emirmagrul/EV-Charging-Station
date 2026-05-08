@@ -5,6 +5,7 @@ import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import AddVehicle from './pages/AddVehicle';
 import Reservation from './pages/Reservation';
+import OperatorDashboard from './pages/OperatorDashboard';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { UIProvider } from './context/UIContext';
 
@@ -45,6 +46,14 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <Reservation />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/operator-dashboard" 
+                  element={
+                    <ProtectedRoute>
+                      <OperatorDashboard />
                     </ProtectedRoute>
                   } 
                 />

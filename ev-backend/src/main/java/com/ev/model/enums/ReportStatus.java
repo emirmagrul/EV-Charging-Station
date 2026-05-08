@@ -1,7 +1,9 @@
 package com.ev.model.enums;
 
 public enum ReportStatus {
-    PENDING,     // Rapor oluşturuldu, henüz bakılmadı
-    IN_PROGRESS, // Operatör sorunu inceliyor
-    RESOLVED     // Sorun giderildi
+    OPEN,        // Rapor oluşturuldu (Açık)
+    PENDING,     // Beklemede
+    IN_PROGRESS, // İşlemde
+    RESOLVED,    // Çözüldü
+    DISMISSED    // Reddedildi
 }

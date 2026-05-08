@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface StationOperatorRepository extends JpaRepository<StationOperator, Long> {
+    java.util.Optional<StationOperator> findByEmail(String email);
 }

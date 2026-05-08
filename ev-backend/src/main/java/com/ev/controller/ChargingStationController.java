@@ -21,6 +21,11 @@ public class ChargingStationController {
         return ResponseEntity.ok(stationService.findAll());
     }
 
+    @GetMapping("/operator/{operatorId}")
+    public ResponseEntity<List<ChargingStationDto>> getByOperator(@PathVariable Long operatorId) {
+        return ResponseEntity.ok(stationService.findByOperatorId(operatorId));
+    }
+
     //Belirli bir istasyonun detaylarını getirir
     @GetMapping("/{id}")
     public ResponseEntity<ChargingStationDto> getStationById(@PathVariable Long id) {

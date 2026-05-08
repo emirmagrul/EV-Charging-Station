@@ -21,6 +21,16 @@ public class ReservationController {
         return ResponseEntity.ok(reservationService.makeReservation(reservationDto));
     }
 
+    @GetMapping
+    public ResponseEntity<List<ReservationDto>> getAllReservations() {
+        return ResponseEntity.ok(reservationService.findAll());
+    }
+
+    @GetMapping("/charger/{chargerId}")
+    public ResponseEntity<List<ReservationDto>> getReservationsByCharger(@PathVariable Long chargerId) {
+        return ResponseEntity.ok(reservationService.getByChargerId(chargerId));
+    }
+
     //Ödemeyi tahsil et ve rezervasyonu kesinleştir (Statü: CONFIRMED)
     @PostMapping("/{id}/confirm")
     public ResponseEntity<String> confirmReservation(@PathVariable Long id) {

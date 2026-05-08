@@ -12,7 +12,9 @@ public class IssueReportDto {
     private LocalDateTime reportedAt;
     private ReportStatus status;
     private Long driverId;
+    private Long operatorId;
     private Long chargerId;
     private String chargerPower;
     private String stationName;
+    private String reporterName;
 }

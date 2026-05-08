@@ -38,7 +38,7 @@ const Login = () => {
         // Role göre yönlendirme
         if (role === 'DRIVER') navigate('/dashboard');
         else if (role === 'ADMIN') alert("Admin Paneli henüz hazır değil!");
-        else if (role === 'OPERATOR') alert("Operatör Paneli henüz hazır değil!");
+        else if (role === 'OPERATOR') navigate('/operator-dashboard');
         
       } else {
         const registerData = {
@@ -46,7 +46,7 @@ const Login = () => {
           lastName: formData.lastName,
           email: formData.email,
           password: formData.password,
-          role: 'DRIVER' // Kayıt olanlar her zaman DRIVER olur
+          role: role // Seçilen rolü gönder
         };
         const userData = await authService.register(registerData);
         alert("Kayıt başarılı! Şimdi giriş yapabilirsiniz.");
@@ -68,9 +68,9 @@ const Login = () => {
         </div>
 
         <div className="role-selector">
-          <button className={role === 'DRIVER' ? 'active' : ''} onClick={() => setRole('DRIVER')}>Kullanıcı</button>
-          <button className={role === 'OPERATOR' ? 'active' : ''} onClick={() => setRole('OPERATOR')}>Operatör</button>
-          <button className={role === 'ADMIN' ? 'active' : ''} onClick={() => setRole('ADMIN')}>Admin</button>
+          <button type="button" className={role === 'DRIVER' ? 'active' : ''} onClick={() => setRole('DRIVER')}>Kullanıcı</button>
+          <button type="button" className={role === 'OPERATOR' ? 'active' : ''} onClick={() => setRole('OPERATOR')}>Operatör</button>
+          <button type="button" className={role === 'ADMIN' ? 'active' : ''} onClick={() => setRole('ADMIN')}>Admin</button>
         </div>
 
         <form className="login-form" onSubmit={handleSubmit}>

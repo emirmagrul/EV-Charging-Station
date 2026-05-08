@@ -8,4 +8,6 @@ public class StationOperatorDto {
     private String firstName;
     private String lastName;
     private String email;
+    private String password;
+    private com.ev.model.enums.UserRole role;
 }

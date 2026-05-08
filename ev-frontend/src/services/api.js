@@ -9,6 +9,12 @@ const api = axios.create({
   }
 });
 
+// Global İstek Günlüğü (Interceptor)
+api.interceptors.request.use(config => {
+  console.log(`API Request: ${config.method.toUpperCase()} ${config.url}`, config.params || '');
+  return config;
+});
+
 // Global Hata Yakalayıcı (Interceptor)
 api.interceptors.response.use(
   (response) => response,

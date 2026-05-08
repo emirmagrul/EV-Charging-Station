@@ -6,6 +6,7 @@ import com.ev.model.ChargingStation;
 import com.ev.model.EVDriver;
 import com.ev.repository.ChargingStationRepository;
 import com.ev.repository.EVDriverRepository;
+import com.ev.repository.StationOperatorRepository;
 import com.ev.service.IEVDriverService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,7 @@ public class EVDriverServiceImpl implements IEVDriverService {
 
     private final EVDriverRepository evDriverRepository;
     private final ChargingStationRepository chargingStationRepository;
+    private final StationOperatorRepository operatorRepository;
 
     @Override
     @Transactional
@@ -41,12 +43,18 @@ public class EVDriverServiceImpl implements IEVDriverService {
         evDriver.setWalletBalance(
                 evDriverDto.getWalletBalance() != null ? evDriverDto.getWalletBalance() : BigDecimal.ZERO);
         
-        // Yeni kayıtlar her zaman DRIVER olur
-        evDriver.setRole(com.ev.model.enums.UserRole.DRIVER);
+        // Rolü belirle (boşsa DRIVER varsay)
+        com.ev.model.enums.UserRole role = evDriverDto.getRole() != null ? evDriverDto.getRole() : com.ev.model.enums.UserRole.DRIVER;
+        
+        if (com.ev.model.enums.UserRole.OPERATOR.equals(role)) {
+            throw new RuntimeException("Hata: Operatör kaydı yanlış servis üzerinden yapılıyor!");
+        }
+        
+        evDriver.setRole(role);
 
         EVDriver savedDriver = evDriverRepository.save(evDriver);
         evDriverDto.setId(savedDriver.getId());
-        evDriverDto.setRole(com.ev.model.enums.UserRole.DRIVER);
+        evDriverDto.setRole(role);
         evDriverDto.setPassword(null); // Geriye şifreyi dönme
         return evDriverDto;
     }
@@ -55,6 +63,23 @@ public class EVDriverServiceImpl implements IEVDriverService {
     public EVDriverDto login(String email, String password, com.ev.model.enums.UserRole requiredRole) {
         log.info("Giriş Denemesi: {} | İstenen Rol: {}", email, requiredRole);
         
+        if (com.ev.model.enums.UserRole.OPERATOR.equals(requiredRole)) {
+            com.ev.model.StationOperator operator = operatorRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("E-posta veya şifre hatalı!"));
+            
+            if (operator.getPassword() == null || !operator.getPassword().equals(password)) {
+                throw new RuntimeException("E-posta veya şifre hatalı!");
+            }
+            
+            EVDriverDto dto = new EVDriverDto();
+            dto.setId(operator.getId());
+            dto.setFirstName(operator.getFirstName());
+            dto.setLastName(operator.getLastName());
+            dto.setEmail(operator.getEmail());
+            dto.setRole(operator.getRole());
+            return dto;
+        }
+
         EVDriver driver = evDriverRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("E-posta veya şifre hatalı!"));
 

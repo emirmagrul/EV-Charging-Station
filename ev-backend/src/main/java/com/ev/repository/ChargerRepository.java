@@ -11,4 +11,6 @@ import java.util.List;
 public interface ChargerRepository extends JpaRepository<Charger, Long> {
     List<Charger> findByStationId(Long stationId);
     List<Charger> findByStationIdAndStatus(Long stationId, ChargerStatus status); // Müsaitlik durumu sorgulama
+
+    long countByStatusIn(List<ChargerStatus> statuses);
 }

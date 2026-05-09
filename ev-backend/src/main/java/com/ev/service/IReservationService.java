@@ -13,4 +13,3 @@ public interface IReservationService {
     List<ReservationDto> findAll();
     List<ReservationDto> getByChargerId(Long chargerId);
 }
-

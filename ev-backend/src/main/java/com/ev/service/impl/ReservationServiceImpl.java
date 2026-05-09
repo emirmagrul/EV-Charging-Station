@@ -152,24 +152,24 @@ public class ReservationServiceImpl implements IReservationService {
             res.setStatus(ReservationStatus.CANCELLED_BY_OPERATOR);
             // Bildirim Gönder
             notificationService.sendNotification(
-                res.getDriver().getId(),
-                "Rezervasyonunuz İptal Edildi",
-                String.format("%s istasyonundaki %s tarihli rezervasyonunuz operatör tarafından iptal edilmiştir. Gerekçe: %s", 
-                    res.getCharger().getStation().getStationName(), res.getReservationDate(), reason),
-                com.ev.model.enums.NotificationType.RESERVATION_CANCELLED
+                    res.getDriver().getId(),
+                    "Rezervasyonunuz İptal Edildi",
+                    String.format("%s istasyonundaki %s tarihli rezervasyonunuz operatör tarafından iptal edilmiştir. Gerekçe: %s",
+                            res.getCharger().getStation().getStationName(), res.getReservationDate(), reason),
+                    com.ev.model.enums.NotificationType.RESERVATION_CANCELLED
             );
         } else {
             res.setStatus(ReservationStatus.CANCELLED);
             // Sürücü kendisi iptal ettiyse de bildirim gönderilebilir (isteğe bağlı)
             notificationService.sendNotification(
-                res.getDriver().getId(),
-                "Rezervasyon İptali",
-                String.format("%s istasyonundaki %s tarihli rezervasyonunuz iptal edilmiştir.", 
-                    res.getCharger().getStation().getStationName(), res.getReservationDate()),
-                com.ev.model.enums.NotificationType.RESERVATION_CANCELLED
+                    res.getDriver().getId(),
+                    "Rezervasyon İptali",
+                    String.format("%s istasyonundaki %s tarihli rezervasyonunuz iptal edilmiştir.",
+                            res.getCharger().getStation().getStationName(), res.getReservationDate()),
+                    com.ev.model.enums.NotificationType.RESERVATION_CANCELLED
             );
         }
-        
+
         reservationRepository.save(res);
     }
 
@@ -243,4 +243,4 @@ public class ReservationServiceImpl implements IReservationService {
 
         return dto;
     }
-}
+}

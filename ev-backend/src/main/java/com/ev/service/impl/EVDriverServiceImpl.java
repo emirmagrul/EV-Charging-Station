@@ -42,14 +42,14 @@ public class EVDriverServiceImpl implements IEVDriverService {
 
         evDriver.setWalletBalance(
                 evDriverDto.getWalletBalance() != null ? evDriverDto.getWalletBalance() : BigDecimal.ZERO);
-        
+
         // Rolü belirle (boşsa DRIVER varsay)
         com.ev.model.enums.UserRole role = evDriverDto.getRole() != null ? evDriverDto.getRole() : com.ev.model.enums.UserRole.DRIVER;
-        
+
         if (com.ev.model.enums.UserRole.OPERATOR.equals(role)) {
             throw new RuntimeException("Hata: Operatör kaydı yanlış servis üzerinden yapılıyor!");
         }
-        
+
         evDriver.setRole(role);
 
         EVDriver savedDriver = evDriverRepository.save(evDriver);
@@ -62,15 +62,15 @@ public class EVDriverServiceImpl implements IEVDriverService {
     @Override
     public EVDriverDto login(String email, String password, com.ev.model.enums.UserRole requiredRole) {
         log.info("Giriş Denemesi: {} | İstenen Rol: {}", email, requiredRole);
-        
+
         if (com.ev.model.enums.UserRole.OPERATOR.equals(requiredRole)) {
             com.ev.model.StationOperator operator = operatorRepository.findByEmail(email)
                     .orElseThrow(() -> new RuntimeException("E-posta veya şifre hatalı!"));
-            
+
             if (operator.getPassword() == null || !operator.getPassword().equals(password)) {
                 throw new RuntimeException("E-posta veya şifre hatalı!");
             }
-            
+
             EVDriverDto dto = new EVDriverDto();
             dto.setId(operator.getId());
             dto.setFirstName(operator.getFirstName());
@@ -194,10 +194,14 @@ public class EVDriverServiceImpl implements IEVDriverService {
             dto.setAddress(s.getAddress());
             dto.setLatitude(s.getLatitude());
             dto.setLongitude(s.getLongitude());
-            
+
             return dto;
         }).collect(Collectors.toList());
     }
 
-
+    @Override
+    public long getTotalDriverCount() {
+        // JPA'nın varsayılan count() metodunu çağırıyoruz
+        return evDriverRepository.count();
+    }
 }

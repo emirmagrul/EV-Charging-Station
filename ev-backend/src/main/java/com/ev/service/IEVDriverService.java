@@ -22,4 +22,6 @@ public interface IEVDriverService {
     void removeStationFromFavorites(Long driverId, Long stationId);
 
     List<ChargingStationDto> getFavoriteStations(Long driverId);
+
+    long getTotalDriverCount();
 }

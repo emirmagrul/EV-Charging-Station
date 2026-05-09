@@ -2,9 +2,7 @@ package com.ev.service.impl;
 
 import com.ev.dto.IssueReportDto;
 import com.ev.model.Charger;
-import com.ev.model.EVDriver;
 import com.ev.model.IssueReport;
-import com.ev.model.StationOperator;
 import com.ev.model.enums.ChargerStatus;
 import com.ev.model.enums.ReportStatus;
 import com.ev.repository.ChargerRepository;
@@ -17,6 +15,7 @@ import com.ev.service.INotificationService;
 import com.ev.service.IIssueReportService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,7 +23,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@lombok.extern.slf4j.Slf4j
+@Slf4j
 public class IssueReportServiceImpl implements IIssueReportService {
 
     private final IssueReportRepository issueReportRepository;
@@ -39,8 +38,8 @@ public class IssueReportServiceImpl implements IIssueReportService {
     @Override
     @Transactional
     public IssueReportDto reportIssue(IssueReportDto issueReportDto) {
-        System.out.println("Arıza Raporu Alındı: " + issueReportDto);
-        
+        log.info("Arıza Raporu Alındı: {}", issueReportDto);
+
         if (issueReportDto.getChargerId() == null) {
             throw new RuntimeException("Cihaz ID bilgisi boş olamaz!");
         }
@@ -52,7 +51,7 @@ public class IssueReportServiceImpl implements IIssueReportService {
         if (issueReportDto.getDriverId() != null) {
             evDriverRepository.findById(issueReportDto.getDriverId()).ifPresent(report::setReporter);
         }
-        
+
         if (issueReportDto.getOperatorId() != null) {
             stationOperatorRepository.findById(issueReportDto.getOperatorId()).ifPresent(report::setOperatorReporter);
         }
@@ -61,7 +60,7 @@ public class IssueReportServiceImpl implements IIssueReportService {
         if (report.getReporter() == null && report.getOperatorReporter() == null) {
             Long potentialId = issueReportDto.getDriverId() != null ? issueReportDto.getDriverId() : issueReportDto.getOperatorId();
             if (potentialId != null) {
-                 stationOperatorRepository.findById(potentialId).ifPresent(report::setOperatorReporter);
+                stationOperatorRepository.findById(potentialId).ifPresent(report::setOperatorReporter);
             }
         }
 
@@ -81,11 +80,11 @@ public class IssueReportServiceImpl implements IIssueReportService {
             Long opId = charger.getStation().getResponsibleOperator().getId();
             log.info("Operatöre bildirim gönderiliyor. OperatorID: {}, Station: {}", opId, charger.getStation().getStationName());
             notificationService.sendOperatorNotification(
-                opId,
-                "Yeni Arıza Bildirimi",
-                String.format("%s istasyonundaki %s ünitesi için yeni bir arıza bildirildi: %s", 
-                    charger.getStation().getStationName(), charger.getId(), report.getDescription()),
-                com.ev.model.enums.NotificationType.SYSTEM_ALERT
+                    opId,
+                    "Yeni Arıza Bildirimi",
+                    String.format("%s istasyonundaki %s ünitesi için yeni bir arıza bildirildi: %s",
+                            charger.getStation().getStationName(), charger.getId(), report.getDescription()),
+                    com.ev.model.enums.NotificationType.SYSTEM_ALERT
             );
         } else {
             log.warn("İstasyonun sorumlu operatörü bulunamadı! Bildirim gönderilemedi. Station: {}", charger.getStation().getStationName());
@@ -147,6 +146,16 @@ public class IssueReportServiceImpl implements IIssueReportService {
                 .map(this::mapToDto).collect(Collectors.toList());
     }
 
+    // YENİ: Admin Paneli için Sadece Çözülmemiş Arızaları Getir
+    @Override
+    @Transactional
+    public List<IssueReportDto> getUnresolvedReports() {
+        return issueReportRepository.findAll().stream()
+                .filter(r -> !ReportStatus.RESOLVED.equals(r.getStatus()) && !ReportStatus.DISMISSED.equals(r.getStatus()))
+                .map(this::mapToDto)
+                .collect(Collectors.toList());
+    }
+
     private IssueReportDto mapToDto(IssueReport report) {
         IssueReportDto dto = new IssueReportDto();
         dto.setId(report.getId());
@@ -155,7 +164,7 @@ public class IssueReportServiceImpl implements IIssueReportService {
         dto.setStatus(report.getStatus());
         dto.setDriverId(report.getReporter() != null ? report.getReporter().getId() : null);
         dto.setOperatorId(report.getOperatorReporter() != null ? report.getOperatorReporter().getId() : null);
-        
+
         if (report.getReporter() != null) {
             dto.setReporterName(report.getReporter().getFirstName() + " " + report.getReporter().getLastName());
         } else if (report.getOperatorReporter() != null) {
@@ -163,7 +172,7 @@ public class IssueReportServiceImpl implements IIssueReportService {
         } else {
             dto.setReporterName("Bilinmeyen");
         }
-        
+
         dto.setChargerId(report.getTargetCharger().getId());
 
         // UI tarafında kolaylık için istasyon ve cihaz bilgisini de ekleyelim

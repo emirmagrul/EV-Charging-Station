@@ -12,4 +12,5 @@ public interface IIssueReportService {
     IssueReportDto findById(Long id);
     List<IssueReportDto> getReportsByStation(Long stationId);
     List<IssueReportDto> findByChargerId(Long chargerId);
+    List<IssueReportDto> getUnresolvedReports();
 }

@@ -1,5 +1,6 @@
 package com.ev.model;
 
+import com.ev.model.enums.UserRole;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -23,4 +24,7 @@ public class Admin {
 
     @Column(name = "email", unique = true)
     private String email;
+
+    @Enumerated(EnumType.STRING)
+    private UserRole role = UserRole.ADMIN;
 }

@@ -1,6 +1,7 @@
 package com.ev.repository;
 
 import com.ev.model.IssueReport;
+import com.ev.model.enums.ReportStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -11,5 +12,8 @@ public interface IssueReportRepository extends JpaRepository<IssueReport, Long> 
     List<IssueReport> findByTargetChargerId(Long chargerId);
 
     List<IssueReport> findByTargetChargerStationId(Long stationId);
+
+    long countByStatusNot(ReportStatus status);
+
     boolean existsByRelatedReservationId(Long reservationId);
 }

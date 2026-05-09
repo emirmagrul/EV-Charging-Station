@@ -2,6 +2,7 @@ package com.ev.service;
 
 import com.ev.dto.ChargingStationDto;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public interface IChargingStationService {
@@ -9,4 +10,5 @@ public interface IChargingStationService {
     List<ChargingStationDto> findAll();
     List<ChargingStationDto> findByOperatorId(Long operatorId);
     ChargingStationDto findById(Long id);
+    ChargingStationDto updateStationConfig(Long stationId, BigDecimal newPricing, String newOperatingHours);
 }

@@ -1,11 +1,21 @@
 package com.ev.service;
 
-import java.math.BigDecimal;
+import com.ev.dto.RevenueReportDto;
+import com.ev.dto.SystemHealthDto;
+import com.ev.dto.UserActivityDto;
+
 import java.util.Map;
 
 public interface IAdminService {
-    BigDecimal getTotalRevenue(); //Toplam Gelir
-    long getTotalChargingSessions(); //Toplam Seans Sayısı
-    Map<String, Long> getStationUsageStats(); //İstasyon bazlı kullanım oranları
-    Map<Integer, Long> getPeakHours(); //En yoğun saatler (Pik saat analizi)
+    // 1. İdari Raporlama: Gelir ve istasyon bazlı analizler
+    RevenueReportDto getRevenueReport();
+
+    // 2. Kullanıcı Faaliyet Özetleri
+    UserActivityDto getUserActivitySummary();
+
+    // 3. Ağ Performansı: Yoğun saat ve kullanım analizi
+    Map<Integer, Long> getPeakHourAnalysis();
+
+    // 4. Sistem Sağlığı ve Denetimi
+    SystemHealthDto getSystemHealthStatus();
 }

@@ -6,6 +6,7 @@ import Dashboard from './pages/Dashboard';
 import AddVehicle from './pages/AddVehicle';
 import Reservation from './pages/Reservation';
 import OperatorDashboard from './pages/OperatorDashboard';
+import AdminDashboard from './pages/AdminDashboard';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { UIProvider } from './context/UIContext';
 import { NotificationProvider } from './context/NotificationContext';
@@ -51,11 +52,19 @@ function App() {
                     </ProtectedRoute>
                   } 
                 />
-                <Route 
+                 <Route 
                   path="/operator-dashboard" 
                   element={
                     <ProtectedRoute>
                       <OperatorDashboard />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/admin-dashboard" 
+                  element={
+                    <ProtectedRoute>
+                      <AdminDashboard />
                     </ProtectedRoute>
                   } 
                 />

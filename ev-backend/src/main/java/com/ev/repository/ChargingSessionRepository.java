@@ -23,5 +23,12 @@ public interface ChargingSessionRepository extends JpaRepository<ChargingSession
     // YENİ: Yoğun saat analizi (Peak Hours)
     @Query("SELECT FUNCTION('HOUR', s.startTime), COUNT(s) FROM ChargingSession s GROUP BY FUNCTION('HOUR', s.startTime)")
     List<Object[]> getPeakHourStats();
+
+    @Query("SELECT FUNCTION('HOUR', s.startTime), COUNT(s) " +
+           "FROM ChargingSession s " +
+           "WHERE s.reservation.charger.station.id = :stationId " +
+           "GROUP BY FUNCTION('HOUR', s.startTime)")
+    List<Object[]> getPeakHourStatsByStation(Long stationId);
+
     long countByStartTimeAfterAndStatus(java.time.LocalDateTime startTime, com.ev.model.enums.SessionStatus status);
 }

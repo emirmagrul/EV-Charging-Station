@@ -37,7 +37,7 @@ const Login = () => {
         
         // Role göre yönlendirme
         if (role === 'DRIVER') navigate('/dashboard');
-        else if (role === 'ADMIN') alert("Admin Paneli henüz hazır değil!");
+        else if (role === 'ADMIN') navigate('/admin-dashboard');
         else if (role === 'OPERATOR') navigate('/operator-dashboard');
         
       } else {

@@ -2,6 +2,7 @@ package com.ev.controller;
 
 import com.ev.dto.EVDriverDto;
 import com.ev.dto.StationOperatorDto;
+import com.ev.service.IAdminService;
 import com.ev.service.IEVDriverService;
 import com.ev.service.IStationOperatorService;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,7 @@ public class EVDriverController {
 
     private final IEVDriverService evDriverService;
     private final IStationOperatorService operatorService;
+    private final IAdminService adminService;
 
     @PostMapping("/register")
     public ResponseEntity<EVDriverDto> register(@RequestBody EVDriverDto driverDto) {
@@ -45,6 +47,27 @@ public class EVDriverController {
             return ResponseEntity.ok(response);
         }
         
+        if (com.ev.model.enums.UserRole.ADMIN.equals(driverDto.getRole())) {
+            log.info("Admin kaydı işleniyor...");
+            com.ev.model.Admin admin = new com.ev.model.Admin();
+            admin.setFirstName(driverDto.getFirstName());
+            admin.setLastName(driverDto.getLastName());
+            admin.setEmail(driverDto.getEmail());
+            admin.setPassword(driverDto.getPassword());
+            admin.setRole(com.ev.model.enums.UserRole.ADMIN);
+
+            com.ev.model.Admin saved = adminService.save(admin);
+            log.info("Admin başarıyla kaydedildi: ID={}", saved.getId());
+
+            EVDriverDto response = new EVDriverDto();
+            response.setId(saved.getId());
+            response.setFirstName(saved.getFirstName());
+            response.setLastName(saved.getLastName());
+            response.setEmail(saved.getEmail());
+            response.setRole(com.ev.model.enums.UserRole.ADMIN);
+            return ResponseEntity.ok(response);
+        }
+
         log.info("Sürücü kaydı işleniyor...");
         return ResponseEntity.ok(evDriverService.createDriver(driverDto));
     }

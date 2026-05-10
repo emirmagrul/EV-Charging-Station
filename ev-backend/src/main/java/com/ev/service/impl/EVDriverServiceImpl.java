@@ -4,6 +4,7 @@ import com.ev.dto.ChargingStationDto;
 import com.ev.dto.EVDriverDto;
 import com.ev.model.ChargingStation;
 import com.ev.model.EVDriver;
+import com.ev.repository.AdminRepository;
 import com.ev.repository.ChargingStationRepository;
 import com.ev.repository.EVDriverRepository;
 import com.ev.repository.StationOperatorRepository;
@@ -25,6 +26,7 @@ public class EVDriverServiceImpl implements IEVDriverService {
     private final EVDriverRepository evDriverRepository;
     private final ChargingStationRepository chargingStationRepository;
     private final StationOperatorRepository operatorRepository;
+    private final AdminRepository adminRepository;
 
     @Override
     @Transactional
@@ -46,8 +48,8 @@ public class EVDriverServiceImpl implements IEVDriverService {
         // Rolü belirle (boşsa DRIVER varsay)
         com.ev.model.enums.UserRole role = evDriverDto.getRole() != null ? evDriverDto.getRole() : com.ev.model.enums.UserRole.DRIVER;
 
-        if (com.ev.model.enums.UserRole.OPERATOR.equals(role)) {
-            throw new RuntimeException("Hata: Operatör kaydı yanlış servis üzerinden yapılıyor!");
+        if (com.ev.model.enums.UserRole.OPERATOR.equals(role) || com.ev.model.enums.UserRole.ADMIN.equals(role)) {
+            throw new RuntimeException("Hata: " + role + " kaydı yanlış servis üzerinden yapılıyor!");
         }
 
         evDriver.setRole(role);
@@ -77,6 +79,23 @@ public class EVDriverServiceImpl implements IEVDriverService {
             dto.setLastName(operator.getLastName());
             dto.setEmail(operator.getEmail());
             dto.setRole(operator.getRole());
+            return dto;
+        }
+
+        if (com.ev.model.enums.UserRole.ADMIN.equals(requiredRole)) {
+            com.ev.model.Admin admin = adminRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("E-posta veya şifre hatalı!"));
+
+            if (admin.getPassword() == null || !admin.getPassword().equals(password)) {
+                throw new RuntimeException("E-posta veya şifre hatalı!");
+            }
+
+            EVDriverDto dto = new EVDriverDto();
+            dto.setId(admin.getId());
+            dto.setFirstName(admin.getFirstName());
+            dto.setLastName(admin.getLastName());
+            dto.setEmail(admin.getEmail());
+            dto.setRole(admin.getRole());
             return dto;
         }
 

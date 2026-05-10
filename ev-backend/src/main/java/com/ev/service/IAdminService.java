@@ -18,4 +18,10 @@ public interface IAdminService {
 
     // 4. Sistem Sağlığı ve Denetimi
     SystemHealthDto getSystemHealthStatus();
+
+    // 5. Kayıt
+    com.ev.model.Admin save(com.ev.model.Admin admin);
+
+    // 6. İstasyon Bazlı Yoğun Saat Analizi
+    Map<Integer, Long> getPeakHourAnalysisByStation(Long stationId);
 }

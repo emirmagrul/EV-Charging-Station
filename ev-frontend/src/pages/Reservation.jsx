@@ -100,6 +100,23 @@ const Reservation = () => {
         isTooFar = true;
       }
 
+      // Çalışma Saati Kontrolü
+      let isClosed = false;
+      if (station && station.operatingHours && station.operatingHours !== "24/7") {
+        try {
+          const [openStr, closeStr] = station.operatingHours.split("-");
+          const openHour = parseInt(openStr.split(":")[0]);
+          const closeHour = parseInt(closeStr.split(":")[0]);
+          
+          // Örn: 10:00 - 22:00 -> i < 10 veya i >= 22 ise kapalı
+          if (i < openHour || i >= closeHour) {
+            isClosed = true;
+          }
+        } catch (e) {
+          console.error("Çalışma saati ayrıştırma hatası:", e);
+        }
+      }
+
       // Backend'den gelen PENDING/CONFIRMED rezervasyonlarla çakışıyor mu?
       let isBooked = false;
       for (const b of bookedSlots) {
@@ -116,7 +133,7 @@ const Reservation = () => {
 
       slots.push({
         time: timeStr,
-        disabled: isPast || isTooFar || isBooked || isOffline
+        disabled: isPast || isTooFar || isBooked || isOffline || isClosed
       });
     }
     return slots;

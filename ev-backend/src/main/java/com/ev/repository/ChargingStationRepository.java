@@ -13,7 +13,7 @@ public interface ChargingStationRepository extends JpaRepository<ChargingStation
     @Query("SELECT s FROM ChargingStation s WHERE s.responsibleOperator.id = :operatorId")
     List<ChargingStation> findByResponsibleOperatorId(@Param("operatorId") Long operatorId);
 
-    @Query("SELECT COUNT(DISTINCT s) FROM ChargingStation s JOIN s.chargers c WHERE c.status = 'AVAILABLE'")
+    @Query("SELECT COUNT(DISTINCT s) FROM ChargingStation s JOIN s.chargers c WHERE c.status = com.ev.model.enums.ChargerStatus.AVAILABLE")
     long countActiveStations();
 
     @Query("SELECT s.stationName, COUNT(c) FROM ChargingStation s JOIN s.chargers c GROUP BY s.stationName")

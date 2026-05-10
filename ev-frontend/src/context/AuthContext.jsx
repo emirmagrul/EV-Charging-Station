@@ -25,7 +25,7 @@ export const AuthProvider = ({ children }) => {
 
   // Kullanıcıya özel verileri yükle
   const loadUserData = async (userData) => {
-    if (!userData) return;
+    if (!userData || userData.role !== 'DRIVER') return;
     
     try {
       // Araçları getir

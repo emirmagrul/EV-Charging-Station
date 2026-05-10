@@ -26,7 +26,10 @@ const Navbar = () => {
     <div className="navbar-container">
       <nav className="navbar glass-panel">
         <Link 
-          to={isAuthenticated && user ? (user.role === 'OPERATOR' ? "/operator-dashboard" : "/dashboard") : "/"} 
+          to={isAuthenticated && user ? (
+            user.role === 'ADMIN' ? "/admin-dashboard" : 
+            user.role === 'OPERATOR' ? "/operator-dashboard" : "/dashboard"
+          ) : "/"} 
           className="nav-brand" 
           onClick={() => {setShowVehiclesModal(false); setShowFavoritesModal(false);}}
         >
@@ -36,7 +39,7 @@ const Navbar = () => {
         <div className="nav-links">
           {isAuthenticated && user ? (
             <>
-              {(!window.location.pathname.includes('operator-dashboard')) && (
+              {user.role === 'DRIVER' && (
                 <>
                   <Link 
                     to="/dashboard" 
@@ -150,6 +153,12 @@ const Navbar = () => {
                 </>
               )}
 
+              {user.role === 'ADMIN' && (
+                <Link to="/admin-dashboard" className="nav-link">Admin Paneli</Link>
+              )}
+              {user.role === 'OPERATOR' && (
+                <Link to="/operator-dashboard" className="nav-link">Operatör Paneli</Link>
+              )}
               <NotificationBell />
               <button className="btn-outline-mini" onClick={handleLogout}>Çıkış</button>
             </>

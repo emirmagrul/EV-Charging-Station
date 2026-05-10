@@ -25,6 +25,10 @@ public class Admin {
     @Column(name = "email", unique = true)
     private String email;
 
+    @Column(name = "password")
+    private String password;
+
     @Enumerated(EnumType.STRING)
+    @Column(name = "role")
     private UserRole role = UserRole.ADMIN;
 }

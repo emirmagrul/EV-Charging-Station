@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -60,6 +61,25 @@ public class ReservationServiceImpl implements IReservationService {
 
         Charger charger = chargerRepository.findById(reservationDto.getChargerId())
                 .orElseThrow(() -> new RuntimeException("Şarj ünitesi bulunamadı"));
+
+        // Çalışma Saati Kontrolü
+        String opHours = charger.getStation().getOperatingHours();
+        if (opHours != null && !opHours.equals("24/7")) {
+            try {
+                String[] parts = opHours.split("-");
+                LocalTime openTime = LocalTime.parse(parts[0]);
+                LocalTime closeTime = LocalTime.parse(parts[1]);
+
+                if (reservationDto.getStartTime().isBefore(openTime) || 
+                    reservationDto.getEndTime().isAfter(closeTime)) {
+                    throw new RuntimeException("Hata: İstasyon bu saatlerde kapalı! Çalışma saatleri: " + opHours);
+                }
+            } catch (Exception e) {
+                log.error("Çalışma saati ayrıştırma hatası: {}", opHours);
+                // Ayrıştırma hatası olsa bile güvenli tarafta kalmak için engelleyebiliriz veya loglayıp devam edebiliriz.
+                // Şimdilik sadece kısıtlıysa kontrol ediyoruz.
+            }
+        }
 
         //Operator Bakım Kontrolü
         if (ChargerStatus.OFFLINE.equals(charger.getStatus())) {

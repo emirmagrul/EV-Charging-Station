@@ -5,5 +5,6 @@ public enum NotificationType {
     RESERVATION_CONFIRMED, // Ödeme başarılı
     SESSION_STARTED,       // Şarj başladı
     SESSION_FINISHED,      // Şarj bitti ve iade yapıldı
-    SYSTEM_ALERT           // Genel duyurular
+    SYSTEM_ALERT,          // Genel duyurular
+    WALLET_ALERT           // Düşük bakiye uyarısı
 }

@@ -44,6 +44,13 @@ public class IssueReportServiceImpl implements IIssueReportService {
             throw new RuntimeException("Cihaz ID bilgisi boş olamaz!");
         }
 
+        // Aynı rezervasyon için daha önce bildirim yapılmış mı kontrol et
+        if (issueReportDto.getReservationId() != null) {
+            if (issueReportRepository.existsByRelatedReservationId(issueReportDto.getReservationId())) {
+                throw new RuntimeException("Bu rezervasyon için daha önce zaten bir geri bildirim gönderilmiş!");
+            }
+        }
+
         IssueReport report = new IssueReport();
         report.setDescription(issueReportDto.getDescription());
 

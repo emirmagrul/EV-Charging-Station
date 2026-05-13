@@ -145,6 +145,19 @@ public class ReservationServiceImpl implements IReservationService {
         reservationRepository.save(res);
 
         log.info("ÖDEME ONAYI: Sürücü ID={} için {} TL tahsil edildi.", res.getDriver().getId(), estimatedCost);
+
+        // Rezervasyon Onayı Bildirimi
+        notificationService.sendNotification(
+                res.getDriver().getId(),
+                "Rezervasyon Onaylandı",
+                String.format("%s istasyonundaki %s tarihli %s-%s saatleri arasındaki rezervasyonunuz başarıyla onaylanmıştır. Tutar: %.2f TL cüzdanınızdan düşüldü.",
+                        res.getCharger().getStation().getStationName(), 
+                        res.getReservationDate(), 
+                        res.getStartTime(), 
+                        res.getEndTime(), 
+                        estimatedCost),
+                com.ev.model.enums.NotificationType.RESERVATION_CONFIRMED
+        );
     }
 
     @Override
@@ -158,8 +171,14 @@ public class ReservationServiceImpl implements IReservationService {
         }
 
         LocalDateTime reservationStart = LocalDateTime.of(res.getReservationDate(), res.getStartTime());
+        
         if (LocalDateTime.now().isAfter(reservationStart)) {
             throw new RuntimeException("Hata: Başlama saati geçmiş olan bir rezervasyon iptal edilemez!");
+        }
+        
+        // Rezervasyona 1 saatten (60 dakika) az kalmışsa iptal edilemez
+        if (java.time.Duration.between(LocalDateTime.now(), reservationStart).toMinutes() < 60) {
+            throw new RuntimeException("Hata: Rezervasyonunuza 1 saatten az bir süre kaldığı için iptal veya iade işlemi gerçekleştirilemez. Lütfen istasyon alanını kullanınız.");
         }
 
         if (ReservationStatus.CONFIRMED.equals(res.getStatus())) {

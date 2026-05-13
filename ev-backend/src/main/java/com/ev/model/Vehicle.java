@@ -28,6 +28,9 @@ public class Vehicle {
     @Column(name = "plate_number")
     private String plateNumber;
 
+    @Column(name = "current_battery_percentage")
+    private Double currentBatteryPercentage;
+
     @ManyToOne
     @JoinColumn(name = "connector_type_id")
     private ConnectorType connectorType;

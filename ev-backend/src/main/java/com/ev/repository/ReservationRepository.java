@@ -43,6 +43,9 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     @Query("SELECT r FROM Reservation r WHERE r.status = 'CONFIRMED' AND (r.reservationDate < :today OR (r.reservationDate = :today AND r.endTime < :nowTime))")
     List<Reservation> findFinishedReservations(@Param("today") LocalDate today, @Param("nowTime") LocalTime nowTime);
 
+    @Query("SELECT r FROM Reservation r WHERE r.status = 'CONFIRMED' AND (r.reservationDate < :today OR (r.reservationDate = :today AND r.startTime < :timeLimit))")
+    List<Reservation> findNoShowCandidates(@Param("today") LocalDate today, @Param("timeLimit") LocalTime timeLimit);
+
     long countByStatusIn(List<ReservationStatus> statuses);
 }
 

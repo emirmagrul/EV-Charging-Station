@@ -31,4 +31,8 @@ public interface ChargingSessionRepository extends JpaRepository<ChargingSession
     List<Object[]> getPeakHourStatsByStation(Long stationId);
 
     long countByStartTimeAfterAndStatus(java.time.LocalDateTime startTime, com.ev.model.enums.SessionStatus status);
+
+    java.util.Optional<ChargingSession> findFirstByReservation_Driver_IdAndStatus(Long driverId, com.ev.model.enums.SessionStatus status);
+
+    java.util.Optional<ChargingSession> findByReservationId(Long reservationId);
 }

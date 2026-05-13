@@ -13,6 +13,8 @@ public class ChargingSessionDto {
     private LocalDateTime endTime;
     private double energyConsumedKwh;
     private BigDecimal totalCost;
+    private Double startPercentage;
+    private Double endPercentage;
     private SessionStatus status;
     private Long reservationId;
 }

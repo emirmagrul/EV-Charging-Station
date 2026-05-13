@@ -27,6 +27,7 @@ public class EVDriverServiceImpl implements IEVDriverService {
     private final ChargingStationRepository chargingStationRepository;
     private final StationOperatorRepository operatorRepository;
     private final AdminRepository adminRepository;
+    private final com.ev.service.INotificationService notificationService;
 
     @Override
     @Transactional
@@ -151,6 +152,16 @@ public class EVDriverServiceImpl implements IEVDriverService {
 
         driver.setWalletBalance(driver.getWalletBalance().subtract(amount));
         evDriverRepository.save(driver);
+
+        // Düşük bakiye kontrolü ve bildirimi (Örn: 100 TL altı)
+        if (driver.getWalletBalance().compareTo(new BigDecimal("100")) < 0) {
+            notificationService.sendNotification(
+                    driver.getId(),
+                    "Düşük Bakiye Uyarısı",
+                    String.format("Cüzdan bakiyeniz %.2f TL'ye düşmüştür. Kesintisiz şarj deneyimi için lütfen bakiye yükleyiniz.", driver.getWalletBalance()),
+                    com.ev.model.enums.NotificationType.WALLET_ALERT
+            );
+        }
     }
 
     @Override

@@ -7,65 +7,10 @@ import chargerService from '../services/chargerService';
 import mapService from '../services/mapService';
 import './Home.css';
 
-// --- İkonlar ---
-const userIcon = L.divIcon({
-  html: `<div class="user-circle-marker"></div>`,
-  className: '',
-  iconSize: [16, 16],
-  iconAnchor: [8, 8]
-});
-
-const getPinIcon = (status) => {
-  let color = '#10b981';
-  if (status === 'OCCUPIED') color = '#f59e0b';
-  if (status === 'OFFLINE') color = '#ef4444';
-
-  return L.divIcon({
-    html: `<svg width="30" height="42" viewBox="0 0 30 42" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M15 0C6.71573 0 0 6.71573 0 15C0 26.25 15 42 15 42C15 42 30 26.25 30 15C30 6.71573 23.2843 0 15 0ZM15 20.25C12.1005 20.25 9.75 17.8995 9.75 15C9.75 12.1005 12.1005 9.75 15 9.75C17.8995 9.75 20.25 12.1005 20.25 15C20.25 17.8995 17.8995 20.25 15 20.25Z" fill="${color}"/>
-            <circle cx="15" cy="15" r="5" fill="white"/>
-           </svg>`,
-    className: 'pin-marker',
-    iconSize: [30, 42],
-    iconAnchor: [15, 42],
-    popupAnchor: [0, -40]
-  });
-};
-
-// Rota Çizme ve Bilgi Alma Bileşeni
-const RoutingMachine = ({ userCoords, targetCoords, setRouteInfo }) => {
-  const map = useMap();
-  const routingControlRef = useRef(null);
-
-  useEffect(() => {
-    if (!map || !userCoords || !targetCoords) return;
-    if (routingControlRef.current) map.removeControl(routingControlRef.current);
-
-    routingControlRef.current = L.Routing.control({
-      waypoints: [
-        L.latLng(userCoords.latitude, userCoords.longitude),
-        L.latLng(targetCoords.latitude, targetCoords.longitude)
-      ],
-      lineOptions: { styles: [{ color: '#10b981', weight: 6, opacity: 0.8 }] },
-      createMarker: () => null, // EKSTRA MAVİ İĞNELERİ BURADA KAPATIYORUZ
-      addWaypoints: false,
-      draggableWaypoints: false,
-      fitSelectedRoutes: true,
-      show: false
-    }).on('routesfound', function(e) {
-      const routes = e.routes;
-      const summary = routes[0].summary;
-      setRouteInfo({
-        distance: (summary.totalDistance / 1000).toFixed(1), // km cinsinden
-        time: Math.round(summary.totalTime / 60) // dakika cinsinden
-      });
-    }).addTo(map);
-
-    return () => { if (routingControlRef.current) map.removeControl(routingControlRef.current); };
-  }, [map, userCoords, targetCoords]);
-
-  return null;
-};
+import { RoutingMachine } from '../components/map/MapLayers';
+import { userIcon, getPinIcon } from '../components/map/MapIcons';
+import HeroSection from '../components/home/HeroSection';
+import RecommendedSection from '../components/home/RecommendedSection';
 
 const Home = () => {
   const navigate = useNavigate();
@@ -116,34 +61,14 @@ const Home = () => {
 
   return (
     <div className="home-container">
-      <section className="hero-section">
-        <h1 className="hero-title">Yolculuğun <span className="text-gradient">Hiç Bitmesin</span></h1>
-        <p className="hero-subtitle">Sana en yakın istasyonu bul ve uygulama içinden hemen yol tarifi al.</p>
-      </section>
+      <HeroSection />
 
-      {recommended.length > 0 && (
-        <section className="recommended-section">
-          <div className="section-title-wrapper">
-            <h2 className="section-title">Sana Özel Önerilenler</h2>
-            <div className="title-line"></div>
-          </div>
-          <div className="recommended-scroll">
-            {recommended.map(st => (
-              <div key={st.id} className="glass-panel recommended-card">
-                <div className="rec-badge">Yakınında</div>
-                <h3>{st.stationName}</h3>
-                <div className="card-actions-row vertical">
-                  <button className="btn-primary-new" onClick={() => handleReservation(st.id)}>Rezervasyon Yap</button>
-                  <div className="card-secondary-actions">
-                    <button className="btn-outline-mini" onClick={() => navigate(`/stations/${st.id}`)}>Detay</button>
-                    <button className="btn-outline-mini" onClick={() => startInternalRouting(st)}>Rota</button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
+      <RecommendedSection 
+        recommended={recommended} 
+        handleReservation={handleReservation} 
+        startInternalRouting={startInternalRouting} 
+        navigate={navigate} 
+      />
 
       <section className="stations-section">
         <div className="section-header-flex">

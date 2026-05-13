@@ -122,7 +122,30 @@ const AddVehicle = () => {
 
           <div className="form-group">
             <label>Batarya Kapasitesi (kWh)</label>
-            <input type="number" name="batteryCapacity" value={formData.batteryCapacity} onChange={handleChange} required />
+            <div className="number-input-wrapper">
+              <button 
+                type="button" 
+                className="number-btn" 
+                onClick={() => setFormData(prev => ({ ...prev, batteryCapacity: Math.max(1, prev.batteryCapacity - 1) }))}
+              >
+                −
+              </button>
+              <input 
+                type="number" 
+                name="batteryCapacity" 
+                value={formData.batteryCapacity} 
+                onChange={handleChange} 
+                min="1"
+                required 
+              />
+              <button 
+                type="button" 
+                className="number-btn" 
+                onClick={() => setFormData(prev => ({ ...prev, batteryCapacity: prev.batteryCapacity + 1 }))}
+              >
+                +
+              </button>
+            </div>
           </div>
 
           <div className="form-group">

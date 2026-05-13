@@ -1,0 +1,119 @@
+.active-session-container {
+  background: linear-gradient(135deg, #1e293b, #0f172a);
+  border-radius: 16px;
+  padding: 24px;
+  color: white;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.active-session-container::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.1) 0%, transparent 70%);
+  animation: pulse-bg 4s infinite alternate;
+  pointer-events: none;
+}
+
+@keyframes pulse-bg {
+  0% { transform: scale(1); opacity: 0.5; }
+  100% { transform: scale(1.1); opacity: 1; }
+}
+
+.session-info {
+  flex: 1;
+  z-index: 1;
+}
+
+.session-info h3 {
+  margin: 0 0 8px 0;
+  font-size: 1.5rem;
+  color: #10b981;
+}
+
+.session-info p {
+  margin: 4px 0;
+  color: #94a3b8;
+  font-size: 0.95rem;
+}
+
+.session-info .time-elapsed {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #f8fafc;
+  margin-top: 12px;
+}
+
+.circular-progress-wrapper {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  margin-right: 20px;
+  z-index: 1;
+}
+
+.circular-progress-svg {
+  transform: rotate(-90deg);
+  width: 100%;
+  height: 100%;
+}
+
+.progress-bg {
+  fill: none;
+  stroke: #334155;
+  stroke-width: 8;
+}
+
+.progress-bar {
+  fill: none;
+  stroke: #10b981;
+  stroke-width: 8;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 1s linear;
+  filter: drop-shadow(0 0 6px rgba(16, 185, 129, 0.6));
+}
+
+.progress-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: white;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+
+.end-session-btn {
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 1;
+  box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.4);
+}
+
+.end-session-btn:hover {
+  background: #dc2626;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 8px -1px rgba(239, 68, 68, 0.5);
+}
+
+.end-session-btn:disabled {
+  background: #64748b;
+  cursor: not-allowed;
+  transform: none;
+}

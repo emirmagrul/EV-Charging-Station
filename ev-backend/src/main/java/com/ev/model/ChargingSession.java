@@ -32,6 +32,12 @@ public class ChargingSession {
     @Column(name = "total_cost")
     private BigDecimal totalCost;
 
+    @Column(name = "start_percentage")
+    private Double startPercentage;
+
+    @Column(name = "end_percentage")
+    private Double endPercentage;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
     private SessionStatus status;

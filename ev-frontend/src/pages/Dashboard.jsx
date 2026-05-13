@@ -7,9 +7,12 @@ import { useStations } from '../hooks/useStations';
 import StationCard from '../components/dashboard/StationCard';
 import UserStats from '../components/dashboard/UserStats';
 import ReservationsModal from '../components/dashboard/ReservationsModal';
+import ReservationModal from '../components/dashboard/ReservationsModal';
 import StationShelf from '../components/dashboard/StationShelf';
 import DashboardMap from '../components/dashboard/DashboardMap';
+import ActiveChargingSession from '../components/dashboard/ActiveChargingSession';
 import reservationService from '../services/reservationService';
+import sessionService from '../services/sessionService';
 import './Dashboard.css';
 
 const Dashboard = () => {
@@ -31,18 +34,46 @@ const Dashboard = () => {
   const [targetRoute, setTargetRoute] = useState(null);
   const [routeInfo, setRouteInfo] = useState(null);
   const [mapCenter, setMapCenter] = useState(null);
-  const [activeStation, setActiveStation] = useState(null);
+  const [activeStationInfo, setActiveStationInfo] = useState(null); // renamed from activeStation to avoid conflict with activeSession
   const [allReservations, setAllReservations] = useState([]);
   const [showReservationsModal, setShowReservationsModal] = useState(false);
   const [resTab, setResTab] = useState('active'); // 'active' or 'history'
+  const [activeSession, setActiveSession] = useState(null);
 
   useEffect(() => {
     if (user) {
       reservationService.getMyReservations(user.id).then(res => {
         setAllReservations(res);
       }).catch(err => console.error(err));
+
+      sessionService.getActiveSession(user.id).then(res => {
+        setActiveSession(res);
+      }).catch(err => console.error(err));
     }
   }, [user]);
+
+  const handleSessionEnd = () => {
+    setActiveSession(null);
+    refreshUser(); // update wallet balance
+    if (user) {
+      reservationService.getMyReservations(user.id).then(res => {
+        setAllReservations(res);
+      }).catch(err => console.error(err));
+    }
+  };
+
+  const handleStartSession = async (reservationId) => {
+    try {
+      const newSession = await sessionService.startSession(reservationId);
+      setActiveSession(newSession);
+      setShowReservationsModal(false); // Modal'ı kapat
+      // Rezervasyon listesini yenile
+      reservationService.getMyReservations(user?.id).then(res => setAllReservations(res));
+      alert("Şarj başarıyla başlatıldı!");
+    } catch (error) {
+      alert(error.response?.data || error.message || "Şarj başlatılamadı.");
+    }
+  };
 
   useEffect(() => {
     if (userCoords) {
@@ -52,13 +83,13 @@ const Dashboard = () => {
 
   // Arka planda istasyon verisi değişirse (örn. polling) aktif popup'ı güncelle
   useEffect(() => {
-    if (activeStation) {
-      const fresh = stations.find(s => s.id === activeStation.id);
-      if (fresh && fresh.status !== activeStation.status) {
-        setActiveStation(fresh);
+    if (activeStationInfo) {
+      const fresh = stations.find(s => s.id === activeStationInfo.id);
+      if (fresh && fresh.status !== activeStationInfo.status) {
+        setActiveStationInfo(fresh);
       }
     }
-  }, [stations, activeStation]);
+  }, [stations, activeStationInfo]);
 
   useEffect(() => {
     if (selectedStation) {
@@ -85,7 +116,7 @@ const Dashboard = () => {
     setTargetRoute({ latitude: st.latitude, longitude: st.longitude });
     setViewMode('map');
     setMapCenter([st.latitude, st.longitude]);
-    setActiveStation(null);
+    setActiveStationInfo(null);
   };
 
   const handleReservation = (stId) => {
@@ -100,7 +131,7 @@ const Dashboard = () => {
     setRouteInfo(null);
     setViewMode('map');
     setMapCenter([freshStation.latitude, freshStation.longitude]);
-    setActiveStation(freshStation);
+    setActiveStationInfo(freshStation);
   };
 
   return (
@@ -119,6 +150,14 @@ const Dashboard = () => {
           onShowReservations={() => { setResTab('active'); setShowReservationsModal(true); }}
         />
       </header>
+
+      {/* Aktif Şarj Oturumu */}
+      {activeSession && (
+        <ActiveChargingSession 
+          session={activeSession} 
+          onSessionEnd={handleSessionEnd} 
+        />
+      )}
 
       {/* Önerilen İstasyonlar */}
       <StationShelf 
@@ -186,8 +225,8 @@ const Dashboard = () => {
           <DashboardMap 
             userCoords={userCoords}
             stations={filteredStations}
-            activeStation={activeStation}
-            setActiveStation={setActiveStation}
+            activeStation={activeStationInfo}
+            setActiveStation={setActiveStationInfo}
             targetRoute={targetRoute}
             setTargetRoute={setTargetRoute}
             routeInfo={routeInfo}
@@ -205,6 +244,8 @@ const Dashboard = () => {
         reservations={allReservations}
         setAllReservations={setAllReservations}
         refreshUser={refreshUser}
+        onStartSession={handleStartSession}
+        activeSession={activeSession}
       />
 
 

@@ -3,7 +3,7 @@ import { formatTime } from '../../utils/formatters';
 import reservationService from '../../services/reservationService';
 import operatorService from '../../services/operatorService';
 
-const ReservationsModal = ({ isOpen, onClose, reservations, setAllReservations, refreshUser }) => {
+const ReservationsModal = ({ isOpen, onClose, reservations, setAllReservations, refreshUser, onStartSession, activeSession }) => {
   const [resTab, setResTab] = useState('active'); // 'active' or 'history'
   const [reportingRes, setReportingRes] = useState(null); // Geri bildirim verilen rezervasyon
   const [reportDesc, setReportDesc] = useState('');
@@ -28,6 +28,17 @@ const ReservationsModal = ({ isOpen, onClose, reservations, setAllReservations, 
     }
   };
 
+  const handlePayment = async (res) => {
+    try {
+      await reservationService.confirmReservation(res.id);
+      setAllReservations(prev => prev.map(r => r.id === res.id ? { ...r, status: 'CONFIRMED' } : r));
+      await refreshUser();
+      alert("Ödemeniz başarıyla alındı ve rezervasyonunuz onaylandı!");
+    } catch (e) {
+      alert(e.response?.data || e.message || 'Ödeme işlemi başarısız. Lütfen bakiyenizi kontrol edin.');
+    }
+  };
+
   const handleReportSubmit = async () => {
     if (!reportDesc.trim()) return alert("Lütfen bir açıklama girin.");
     setIsSubmitting(true);
@@ -47,7 +58,8 @@ const ReservationsModal = ({ isOpen, onClose, reservations, setAllReservations, 
       setReportingRes(null);
       setReportDesc('');
     } catch (e) {
-      alert("Rapor gönderilemedi. Lütfen daha sonra tekrar deneyin.");
+      const errorMessage = e.response?.data?.message || e.response?.data || e.message || "Rapor gönderilemedi. Lütfen daha sonra tekrar deneyin.";
+      alert(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -124,16 +136,57 @@ const ReservationsModal = ({ isOpen, onClose, reservations, setAllReservations, 
                   )}
 
                   {(isPending || isConfirmed) && (
-                    <button
-                      onClick={() => handleCancel(res)}
-                      style={{
-                        marginTop: '10px', width: '100%', padding: '8px',
-                        background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.4)',
-                        borderRadius: '8px', color: '#ef4444', cursor: 'pointer', fontSize: '0.85rem'
-                      }}
-                    >
-                      🗑️ Rezervasyonu İptal Et
-                    </button>
+                    <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+                      {isConfirmed && (!activeSession || activeSession.reservationId !== res.id) && (
+                        <button
+                          onClick={() => onStartSession(res.id)}
+                          style={{
+                            flex: 1, padding: '10px',
+                            background: 'linear-gradient(135deg, #10b981, #059669)',
+                            border: 'none', borderRadius: '8px', 
+                            color: 'white', cursor: 'pointer', fontSize: '0.85rem',
+                            fontWeight: 'bold', boxShadow: '0 4px 6px rgba(16,185,129,0.3)'
+                          }}
+                        >
+                          ⚡ Şarjı Başlat
+                        </button>
+                      )}
+                      {isConfirmed && activeSession && activeSession.reservationId === res.id && (
+                        <div style={{
+                          flex: 1, padding: '10px',
+                          background: 'rgba(16,185,129,0.1)',
+                          border: '1px solid rgba(16,185,129,0.3)', borderRadius: '8px', 
+                          color: '#10b981', fontSize: '0.85rem', textAlign: 'center',
+                          fontWeight: 'bold'
+                        }}>
+                          ⚡ Şarj Devam Ediyor
+                        </div>
+                      )}
+                      {isPending && (
+                        <button
+                          onClick={() => handlePayment(res)}
+                          style={{
+                            flex: 1, padding: '10px',
+                            background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
+                            border: 'none', borderRadius: '8px', 
+                            color: 'white', cursor: 'pointer', fontSize: '0.85rem',
+                            fontWeight: 'bold', boxShadow: '0 4px 6px rgba(59,130,246,0.3)'
+                          }}
+                        >
+                          💳 Ödemeyi Tamamla
+                        </button>
+                      )}
+                      <button
+                        onClick={() => handleCancel(res)}
+                        style={{
+                          flex: 1, padding: '10px',
+                          background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.4)',
+                          borderRadius: '8px', color: '#ef4444', cursor: 'pointer', fontSize: '0.85rem'
+                        }}
+                      >
+                        🗑️ İptal Et
+                      </button>
+                    </div>
                   )}
 
                   {isCompleted && (

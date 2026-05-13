@@ -82,54 +82,72 @@ const Reservation = () => {
   // Saat 00:00'dan 23:00'a kadar slot oluştur
   const generateTimeSlots = () => {
     const slots = [];
+    const now = new Date();
+    const nowHour = now.getHours();
+    const nowMinutes = now.getMinutes();
+
     for (let i = 0; i < 24; i++) {
       const hourStr = i.toString().padStart(2, '0');
       const timeStr = `${hourStr}:00`;
-      const timeStrEnd = `${hourStr}:59`; // overlapping kontrolü için
 
-      // Geçmiş saatleri engelle (bugünse)
-      const now = new Date();
+      // ── BUGÜN: Şu andan en az 1 saat sonraki slotlara izin ver ──────────
       let isPast = false;
-      if (selectedDate === today && i <= now.getHours()) {
-        isPast = true;
+      if (selectedDate === today) {
+        // Dakika bazlı kontrol: örn. 23:28'de sadece 23:00 değil, 00:00 da geçmiş
+        if (i < nowHour || (i === nowHour && nowMinutes > 0)) {
+          isPast = true; // Saat başlamış veya geçmiş
+        }
+        // Şu an 23:45 gibi ise, 23:00 slotu da artık başlamış sayılır
       }
 
-      // 24 saat sonrasını engelle (yarın ise)
+      // ── YARIN: 24 saatten fazla ilerideki slotları engelle ───────────────
+      // Şu an + 24 saat = deadline. Yarın o saatten ilerisini engelle.
       let isTooFar = false;
-      if (selectedDate === tomorrow && i > now.getHours()) {
-        isTooFar = true;
+      if (selectedDate === tomorrow) {
+        // Yarın saat i, şu andan kaç saat uzakta?
+        // = (24 - nowHour) + i  (gece yarısı geçişi dahil)
+        const hoursFromNow = (24 - nowHour - 1) + i + (nowMinutes > 0 ? 0 : 1);
+        if (hoursFromNow >= 24) {
+          isTooFar = true;
+        }
       }
 
-      // Çalışma Saati Kontrolü
+      // ── ÇALIŞMA SAATİ KONTROLÜ ──────────────────────────────────────────
+      // "24 Saat", "24/7", "Tüm Gün" → 24 saat açık
       let isClosed = false;
-      if (station && station.operatingHours && station.operatingHours !== "24/7") {
+      const is24h = !station?.operatingHours
+        || station.operatingHours === "24/7"
+        || station.operatingHours === "24 Saat"
+        || station.operatingHours === "24 saat"
+        || station.operatingHours.toLowerCase().includes("24");
+
+      if (station && station.operatingHours && !is24h) {
         try {
           const [openStr, closeStr] = station.operatingHours.split("-");
-          const openHour = parseInt(openStr.split(":")[0]);
-          const closeHour = parseInt(closeStr.split(":")[0]);
-          
-          // Örn: 10:00 - 22:00 -> i < 10 veya i >= 22 ise kapalı
+          const openHour = parseInt(openStr.trim().split(":")[0]);
+          const closeHour = parseInt(closeStr.trim().split(":")[0]);
           if (i < openHour || i >= closeHour) {
             isClosed = true;
           }
         } catch (e) {
-          console.error("Çalışma saati ayrıştırma hatası:", e);
+          // Parse hatası → açık varsay
         }
       }
 
-      // Backend'den gelen PENDING/CONFIRMED rezervasyonlarla çakışıyor mu?
+      // ── DOLULUK KONTROLÜ ────────────────────────────────────────────────
       let isBooked = false;
+      const slotEnd = `${(i + 1).toString().padStart(2, '0')}:00`;
       for (const b of bookedSlots) {
         const bStart = formatTime(b.startTime);
-        const bEnd = formatTime(b.endTime);
-
-        if (timeStr < bEnd && timeStrEnd > bStart) {
+        const bEnd   = formatTime(b.endTime);
+        if (timeStr < bEnd && slotEnd > bStart) {
           isBooked = true;
           break;
         }
       }
 
-      let isOffline = selectedCharger && selectedCharger.status === 'OFFLINE';
+      const isOffline = selectedCharger &&
+        (selectedCharger.status === 'OFFLINE' || selectedCharger.status === 'OUT_OF_SERVICE');
 
       slots.push({
         time: timeStr,
@@ -138,6 +156,7 @@ const Reservation = () => {
     }
     return slots;
   };
+
 
   const timeSlots = generateTimeSlots();
 

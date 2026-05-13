@@ -10,4 +10,6 @@ public class ChargerDto {
     private ChargerStatus status;
     private ConnectorTypeDto connectorType;
     private Long stationId;
+    private String stationName;       // Operatör paneli için
+    private Double pricePerKwh;       // İstasyonun kWh fiyatı (frontend: charger.pricePerKwh)
 }

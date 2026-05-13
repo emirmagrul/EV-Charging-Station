@@ -63,6 +63,12 @@ public class ChargerServiceImpl implements IChargerService {
             dto.setPowerOutput(c.getPowerOutput());
             dto.setStatus(c.getStatus());
             dto.setStationId(c.getStation().getId());
+            dto.setStationName(c.getStation().getStationName());
+
+            // İstasyonun kWh fiyatını cihaz DTO'suna aktar
+            if (c.getStation().getPricingPerKWh() != null) {
+                dto.setPricePerKwh(c.getStation().getPricingPerKWh().doubleValue());
+            }
 
             if (c.getConnectorType() != null) {
                 ConnectorTypeDto ctDto = new ConnectorTypeDto();
@@ -74,6 +80,7 @@ public class ChargerServiceImpl implements IChargerService {
             return dto;
         }).collect(Collectors.toList());
     }
+
 
     @Override
     @Transactional

@@ -1,3 +1,7 @@
+<div align="right">
+  <a href="README_TR.md">🇹🇷 Türkçe</a>
+</div>
+
 # ⚡ EV Charging Station Network Management System
 
 ![Live Status](https://img.shields.io/badge/Status-Live-success?style=for-the-badge)

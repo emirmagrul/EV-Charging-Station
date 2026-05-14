@@ -181,15 +181,19 @@
 }
 
 @media (max-width: 768px) {
+  .navbar-container {
+    position: relative; /* Mobilde aşağı kaydırırken ekranda takılı kalmasını engeller */
+    margin: 0.5rem 1rem;
+  }
   .navbar {
     flex-direction: column;
-    padding: 1rem;
-    gap: 1rem;
+    padding: 0.8rem;
+    gap: 0.8rem;
   }
   .nav-links {
     flex-wrap: wrap;
     justify-content: center;
-    gap: 1rem;
+    gap: 0.8rem;
   }
   .dropdown-panel {
     right: 50%;

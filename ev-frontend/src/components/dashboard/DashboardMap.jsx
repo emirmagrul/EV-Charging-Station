@@ -3,18 +3,18 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import { RoutingMachine, ChangeView } from '../map/MapLayers';
 import { userIcon, getPinIcon } from '../map/MapIcons';
 
-const DashboardMap = ({ 
-  userCoords, 
-  stations, 
-  activeStation, 
-  setActiveStation, 
-  targetRoute, 
-  setTargetRoute, 
-  routeInfo, 
-  setRouteInfo, 
+const DashboardMap = ({
+  userCoords,
+  stations,
+  activeStation,
+  setActiveStation,
+  targetRoute,
+  setTargetRoute,
+  routeInfo,
+  setRouteInfo,
   mapCenter,
   onReserve,
-  onRoute 
+  onRoute
 }) => {
   return (
     <div className="map-wrapper glass-panel" style={{ position: 'relative' }}>
@@ -40,7 +40,7 @@ const DashboardMap = ({
       >
         <ChangeView center={mapCenter} zoom={15} />
         <TileLayer url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" />
-        
+
         {targetRoute && userCoords && (
           <RoutingMachine userCoords={userCoords} targetCoords={targetRoute} setRouteInfo={setRouteInfo} />
         )}

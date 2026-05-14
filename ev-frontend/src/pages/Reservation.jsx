@@ -18,7 +18,7 @@ const Reservation = () => {
   const [station, setStation] = useState(null);
   const [chargers, setChargers] = useState([]);
   const [selectedCharger, setSelectedCharger] = useState(null);
-  
+
   // Date format: YYYY-MM-DD
   const getLocalDateString = (date) => {
     const year = date.getFullYear();
@@ -34,7 +34,7 @@ const Reservation = () => {
 
   const [selectedDate, setSelectedDate] = useState(today);
   const [bookedSlots, setBookedSlots] = useState([]);
-  
+
   const [selectedStartTime, setSelectedStartTime] = useState(null);
   const [durationHours, setDurationHours] = useState(1);
 
@@ -139,7 +139,7 @@ const Reservation = () => {
       const slotEnd = `${(i + 1).toString().padStart(2, '0')}:00`;
       for (const b of bookedSlots) {
         const bStart = formatTime(b.startTime);
-        const bEnd   = formatTime(b.endTime);
+        const bEnd = formatTime(b.endTime);
         if (timeStr < bEnd && slotEnd > bStart) {
           isBooked = true;
           break;
@@ -177,7 +177,7 @@ const Reservation = () => {
 
   const handleMakeReservation = async () => {
     if (!selectedStartTime) return alert("Lütfen bir başlangıç saati seçin.");
-    
+
     // Bitiş saati hesapla
     const endTimeStr = getEndTime();
 
@@ -230,7 +230,7 @@ const Reservation = () => {
     // Şimdilik sadece modalı kapatıp backend'i yormayalım (veya cancel servisini çağırabiliriz).
     try {
       await reservationService.cancelReservation(pendingReservationId);
-    } catch(e) {}
+    } catch (e) { }
     setShowPaymentModal(false);
     setPendingReservationId(null);
   };
@@ -251,18 +251,18 @@ const Reservation = () => {
 
         {/* Cihaz ve Zaman Seçimi */}
         <div className="reservation-panel">
-          
-          <ChargerSelector 
-            chargers={chargers} 
-            selectedId={selectedCharger?.id} 
-            onSelect={setSelectedCharger} 
+
+          <ChargerSelector
+            chargers={chargers}
+            selectedId={selectedCharger?.id}
+            onSelect={setSelectedCharger}
           />
 
           <div className="selection-group">
             <label>2. Tarih Seçin (En fazla 24 saat önceden)</label>
-            <select 
-              className="date-picker" 
-              value={selectedDate} 
+            <select
+              className="date-picker"
+              value={selectedDate}
               onChange={(e) => setSelectedDate(e.target.value)}
             >
               <option value={today}>Bugün ({today})</option>
@@ -270,28 +270,28 @@ const Reservation = () => {
             </select>
           </div>
 
-          <TimeSlotGrid 
-            slots={timeSlots} 
-            selectedTime={selectedStartTime} 
+          <TimeSlotGrid
+            slots={timeSlots}
+            selectedTime={selectedStartTime}
             onSelect={(time) => {
               setSelectedStartTime(time);
               if (time === '23:00' && durationHours === 2) {
                 setDurationHours(1);
               }
-            }} 
+            }}
           />
 
           <div className="selection-group">
             <label>4. Süre Seçin (Maksimum 2 Saat)</label>
-            <div style={{display:'flex', gap:'10px'}}>
-              <button 
-                className={`btn-outline-mini ${durationHours === 1 ? 'active' : ''}`} 
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button
+                className={`btn-outline-mini ${durationHours === 1 ? 'active' : ''}`}
                 onClick={() => setDurationHours(1)}
               >
                 1 Saat
               </button>
-              <button 
-                className={`btn-outline-mini ${durationHours === 2 ? 'active' : ''}`} 
+              <button
+                className={`btn-outline-mini ${durationHours === 2 ? 'active' : ''}`}
                 onClick={() => setDurationHours(2)}
                 disabled={selectedStartTime === '23:00'}
                 title={selectedStartTime === '23:00' ? "Gece yarısını geçen rezervasyon yapılamaz" : ""}
@@ -312,8 +312,8 @@ const Reservation = () => {
 
           <div className="reservation-actions">
             <button className="btn-outline-new btn-full" onClick={() => navigate(-1)}>İptal Et</button>
-            <button 
-              className="btn-primary-new btn-full" 
+            <button
+              className="btn-primary-new btn-full"
               disabled={!selectedStartTime || processing || selectedCharger?.status === 'OFFLINE'}
               onClick={handleMakeReservation}
             >
@@ -325,7 +325,7 @@ const Reservation = () => {
       </div>
 
       {/* Ödeme / Onay Modalı */}
-      <PaymentModal 
+      <PaymentModal
         isOpen={showPaymentModal}
         cost={estimatedCost()}
         balance={user?.walletBalance}

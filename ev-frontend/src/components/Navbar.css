@@ -180,6 +180,24 @@
   gap: 10px;
 }
 
+@media (max-width: 768px) {
+  .navbar {
+    flex-direction: column;
+    padding: 1rem;
+    gap: 1rem;
+  }
+  .nav-links {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+  }
+  .dropdown-panel {
+    right: 50%;
+    transform: translateX(50%);
+    width: 280px;
+  }
+}
+
 
 
 

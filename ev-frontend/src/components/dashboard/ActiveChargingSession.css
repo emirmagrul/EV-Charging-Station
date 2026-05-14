@@ -117,3 +117,14 @@
   cursor: not-allowed;
   transform: none;
 }
+
+@media (max-width: 768px) {
+  .active-session-container {
+    flex-direction: column;
+    gap: 1.5rem;
+    text-align: center;
+  }
+  .circular-progress-wrapper {
+    margin-right: 0;
+  }
+}

@@ -219,3 +219,15 @@
   display: flex;
   gap: 15px;
 }
+
+@media (max-width: 768px) {
+  .reservation-page {
+    padding: 20px 10px;
+  }
+  .reservation-actions {
+    flex-direction: column;
+  }
+  .reservation-actions button {
+    width: 100%;
+  }
+}

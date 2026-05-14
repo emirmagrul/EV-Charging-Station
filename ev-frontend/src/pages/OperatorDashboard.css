@@ -742,5 +742,10 @@
   .operator-page { padding: 80px 12px 32px; }
   .operator-tabs { flex-wrap: wrap; }
   .fault-card { grid-template-columns: 1fr; }
-  .fault-actions { flex-direction: row; }
+  .fault-actions { flex-direction: column; gap: 10px; }
+  .fault-actions-new { margin-left: 0; justify-content: flex-start; width: 100%; flex-wrap: wrap; }
+  .operator-header { flex-direction: column; align-items: flex-start; }
+  .kpi-card { padding: 15px; }
+  .station-selector { flex-direction: column; align-items: stretch; }
+  .station-selector select { max-width: 100%; }
 }

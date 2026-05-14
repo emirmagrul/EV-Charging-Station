@@ -169,3 +169,15 @@ input[type="number"] {
 .number-input-wrapper input:focus {
     outline: none;
 }
+
+@media (max-width: 768px) {
+    .add-vehicle-container {
+        padding: 1rem;
+    }
+    .form-card {
+        padding: 1.5rem;
+    }
+    .number-input-wrapper {
+        flex-direction: row;
+    }
+}

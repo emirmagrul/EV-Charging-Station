@@ -424,4 +424,32 @@
     transform: scale(1.3);
 }
 
+@media (max-width: 768px) {
+    .dashboard-container {
+        padding: 1rem 1rem 2rem;
+    }
+    .dashboard-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1.5rem;
+    }
+    .user-stats {
+        flex-direction: column;
+        padding: 1.5rem;
+        gap: 1rem;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    .stat-divider {
+        width: 100%;
+        height: 1px;
+    }
+    .welcome-text h1 {
+        font-size: 2rem;
+    }
+    .quick-action-btns {
+        flex-direction: column;
+    }
+}
+
 

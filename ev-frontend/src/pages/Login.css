@@ -140,3 +140,13 @@
     color: #059669;
     text-decoration: underline;
 }
+
+@media (max-width: 768px) {
+    .login-container {
+        padding: 30px 20px;
+    }
+    .form-row {
+        flex-direction: column;
+        gap: 20px;
+    }
+}

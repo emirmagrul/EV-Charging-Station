@@ -1,26 +1,28 @@
 import axios from 'axios';
 
-// Backend bağlantısı için merkezi yapılandırma
+// Backend baglantisi icin merkezi yapilandirma
 const api = axios.create({
-  baseURL: 'http://localhost:8080/api',
+  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
   }
 });
 
-// Global İstek Günlüğü (Interceptor)
+// Global Istek Gunlugu (Interceptor) - sadece development'ta
 api.interceptors.request.use(config => {
-  console.log(`API Request: ${config.method.toUpperCase()} ${config.url}`, config.params || '');
+  if (import.meta.env.DEV) {
+    console.log(`API Request: ${config.method.toUpperCase()} ${config.url}`, config.params || '');
+  }
   return config;
 });
 
-// Global Hata Yakalayıcı (Interceptor)
+// Global Hata Yakalayici (Interceptor)
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.data && error.response.data.error) {
-      // Backend'den gelen düzenli hata mesajını fırlat
+      // Backend'den gelen duzenli hata mesajini firllat
       return Promise.reject(new Error(error.response.data.error));
     }
     return Promise.reject(error);
@@ -28,4 +30,3 @@ api.interceptors.response.use(
 );
 
 export default api;
-

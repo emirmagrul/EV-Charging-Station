@@ -18,7 +18,7 @@ const StationShelf = ({ title, stations, onStationClick, badge, icon, actionButt
                 {icon && <span>{icon}</span>}
                 <h3>{st.stationName}</h3>
               </div>
-              <p>{st.address.length > 35 ? st.address.substring(0, 35) + '...' : st.address}</p>
+              <p>{st.address ? (st.address.length > 35 ? st.address.substring(0, 35) + '...' : st.address) : 'Adres bilgisi bulunamadı'}</p>
             </div>
           </div>
         ))}

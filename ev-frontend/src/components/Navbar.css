@@ -71,6 +71,8 @@
   box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
   z-index: 1001;
   animation: slideDown 0.3s ease-out;
+  background: var(--bg-main) !important;
+  border: 1px solid var(--border-light);
 }
 
 @keyframes slideDown {

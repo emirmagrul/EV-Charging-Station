@@ -1,18 +1,20 @@
 import React from 'react';
 
-const StationCard = ({ station, isFavorite, onToggleFavorite, onReserve, onDetail, onRoute }) => {
+const StationCard = ({ station, isFavorite, onToggleFavorite, onReserve, onDetail, onRoute, showFavoriteBtn = true }) => {
   return (
     <div className="glass-panel premium-card">
       <div className="card-top-icon">⚡</div>
-      <div 
-        className={`card-fav-btn ${isFavorite ? 'active' : ''}`}
-        onClick={(e) => {
-          e.stopPropagation();
-          onToggleFavorite(station);
-        }}
-      >
-        {isFavorite ? '❤️' : '🤍'}
-      </div>
+      {showFavoriteBtn && (
+        <div 
+          className={`card-fav-btn ${isFavorite ? 'active' : ''}`}
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggleFavorite(station);
+          }}
+        >
+          {isFavorite ? '❤️' : '🤍'}
+        </div>
+      )}
       <h3>{station.stationName}</h3>
       <p className="address-text">📍 {station.address}</p>
       <div className="premium-card-footer">

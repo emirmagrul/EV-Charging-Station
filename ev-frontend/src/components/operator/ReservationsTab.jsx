@@ -63,7 +63,7 @@ function ReservationsTab({ reservations, loadingRes, onCancelReservation }) {
                   <td>
                     <button
                       className="cancel-res-btn"
-                      disabled={r.status === 'CANCELLED' || r.status === 'COMPLETED'}
+                      disabled={r.status === 'CANCELLED' || r.status === 'COMPLETED' || r.status === 'CANCELLED_BY_OPERATOR'}
                       onClick={() => onCancelReservation(r)}
                     >
                       İptal Et

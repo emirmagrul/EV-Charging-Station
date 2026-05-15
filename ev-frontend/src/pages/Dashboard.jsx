@@ -13,6 +13,7 @@ import DashboardMap from '../components/dashboard/DashboardMap';
 import ActiveChargingSession from '../components/dashboard/ActiveChargingSession';
 import reservationService from '../services/reservationService';
 import sessionService from '../services/sessionService';
+import mapService from '../services/mapService';
 import './Dashboard.css';
 
 const Dashboard = () => {
@@ -39,6 +40,7 @@ const Dashboard = () => {
   const [showReservationsModal, setShowReservationsModal] = useState(false);
   const [resTab, setResTab] = useState('active'); // 'active' or 'history'
   const [activeSession, setActiveSession] = useState(null);
+  const [recommendedStations, setRecommendedStations] = useState([]);
 
   useEffect(() => {
     if (user) {
@@ -76,10 +78,24 @@ const Dashboard = () => {
   };
 
   useEffect(() => {
-    if (userCoords) {
+    if (userCoords && stations.length > 0) {
       setMapCenter([userCoords.latitude, userCoords.longitude]);
+      // Fetch nearby stations for recommended section
+      mapService.getNearbyStations(userCoords.latitude, userCoords.longitude)
+        .then(data => {
+          // Backend'den gelen veride adres eksik olabiliyor. 
+          // Bu yüzden ID'leri eşleştirip ana 'stations' listesinden tam veriyi (adres dahil) alıyoruz.
+          const enrichedStations = data.slice(0, 4).map(nearby => {
+            const fullStation = stations.find(s => s.id === nearby.id);
+            return fullStation || nearby;
+          });
+          setRecommendedStations(enrichedStations);
+        })
+        .catch(err => console.error("Yakın istasyonlar yüklenemedi:", err));
+    } else if (userCoords) {
+       setMapCenter([userCoords.latitude, userCoords.longitude]);
     }
-  }, [userCoords]);
+  }, [userCoords, stations]);
 
   // Arka planda istasyon verisi değişirse (örn. polling) aktif popup'ı güncelle
   useEffect(() => {
@@ -109,7 +125,7 @@ const Dashboard = () => {
   });
 
 
-  const recommendedStations = stations.slice(0, 4);
+
 
   const startInternalRouting = (st) => {
     if (!userCoords) return alert("Konum izni gerekiyor.");
@@ -168,13 +184,15 @@ const Dashboard = () => {
       />
 
       {/* Favori İstasyonlar Bölümü */}
-      <StationShelf 
-        title="Favori İstasyonlarım"
-        stations={favorites}
-        onStationClick={goToStation}
-        icon="❤️"
-        actionButton={<button className="btn-text" onClick={() => setShowFavoritesModal(true)}>Düzenle</button>}
-      />
+      {user?.role === 'DRIVER' && (
+        <StationShelf 
+          title="Favori İstasyonlarım"
+          stations={favorites}
+          onStationClick={goToStation}
+          icon="❤️"
+          actionButton={<button className="btn-text" onClick={() => setShowFavoritesModal(true)}>Düzenle</button>}
+        />
+      )}
 
       {/* Ana İstasyon Alanı */}
       <section className="stations-main-section">
@@ -218,6 +236,7 @@ const Dashboard = () => {
                 onReserve={handleReservation}
                 onDetail={(id) => navigate(`/stations/${id}`)}
                 onRoute={startInternalRouting}
+                showFavoriteBtn={user?.role === 'DRIVER'}
               />
             ))}
           </div>

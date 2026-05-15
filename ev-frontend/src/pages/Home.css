@@ -59,6 +59,7 @@
   justify-content: space-between;
   gap: 1.5rem;
   background: rgba(30, 41, 59, 0.4);
+  position: relative;
 }
 
 .recommended-card h3 {
@@ -105,6 +106,7 @@
   flex-direction: column;
   gap: 1.2rem;
   border-radius: 20px;
+  position: relative;
 }
 
 .premium-card-footer {
